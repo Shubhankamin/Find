@@ -11,7 +11,7 @@
           :key="index"
           class="d-flex justify-center"
         >
-          <v-card class="modern-card" elevation="3" max-width="350">
+          <v-card class="modern-card" elevation="3" max-width="350" min-width="300">
             <!-- Image -->
             <v-img
               :src="item.image"
@@ -26,7 +26,7 @@
 
             <!-- Date Posted -->
             <v-card-subtitle class="text-grey-darken-1 text-caption">
-              Posted on: {{ formatDate(item.datePosted) }}
+              Posted on: {{ formatDate(item.createdAt) }}
             </v-card-subtitle>
 
             <!-- Description -->
@@ -48,48 +48,38 @@
     </v-container>
   </div>
 </template>
-<script setup>
-const formatDate = (dateString) => {
-  const options = { year: "numeric", month: "short", day: "numeric" };
-  return new Date(dateString).toLocaleDateString(undefined, options);
+<script setup lang="ts">
+import { onMounted, ref } from "vue";
+import { useLostItems } from "~/composables/useLostItems";
+
+// ✅ Format Date Function
+const formatDate = (dateString: any) => {
+  if (!dateString) return "N/A";
+  const date =
+    dateString.seconds !== undefined
+      ? new Date(dateString.seconds * 1000)
+      : new Date(dateString);
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 };
-const items = [
-  {
-    name: "Blue Backpack",
-    location: "Library",
-    description: "A blue backpack with books and a water bottle.",
-    image: "/images/watch.jpg",
-    datePosted: "2025-08-14T10:30:00Z",
-  },
-  {
-    name: "Blue Backpack",
-    location: "Library",
-    description: "A blue backpack with books and a water bottle.",
-    image: "/images/watch.jpg",
-    datePosted: "2025-08-14T10:30:00Z",
-  },
-  {
-    name: "Blue Backpack",
-    location: "Library",
-    description: "A blue backpack with books and a water bottle.",
-    image: "/images/watch.jpg",
-    datePosted: "2025-08-14T10:30:00Z",
-  },
-  {
-    name: "Blue Backpack",
-    location: "Library",
-    description: "A blue backpack with books and a water bottle.",
-    image: "/images/watch.jpg",
-    datePosted: "2025-08-14T10:30:00Z",
-  },
-  {
-    name: "Blue Backpack",
-    location: "Library",
-    description: "A blue backpack with books and a water bottle.",
-    image: "/images/watch.jpg",
-    datePosted: "2025-08-14T10:30:00Z",
-  },
-];
+
+// ✅ Use Composable
+const { getLostItems, loading, error } = useLostItems();
+
+// ✅ Reactive items array
+const items = ref<any[]>([]);
+
+// ✅ Fetch Data on Mount
+onMounted(async () => {
+  try {
+    items.value = await getLostItems();
+  } catch (err) {
+    console.error(err);
+  }
+});
 </script>
 <style scoped>
 /* Text Truncate */

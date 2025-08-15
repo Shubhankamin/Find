@@ -53,6 +53,13 @@
                     density="comfortable"
                     required
                   />
+                  <v-select
+                    :items="categories"
+                    label="Filter by Category"
+                    variant="outlined"
+                    dense
+                    v-model="selectedCategory"
+                  />
 
                   <!-- Custom Image Upload -->
                   <div class="upload-box" @click="triggerFileInput">
@@ -119,9 +126,12 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useLostItems } from "@/composables/useLostItems";
 
 const props = defineProps<{ open: boolean }>();
 const emit = defineEmits<{ (e: "close"): void }>();
+const categories = ["All", "Electronics", "Books", "Accessories", "Documents"];
+const selectedCategory = ref("All");
 
 const itemName = ref("");
 const description = ref("");
@@ -132,9 +142,9 @@ const imagePreview = ref<string | null>(null);
 
 const fileInput = ref<HTMLInputElement | null>(null);
 
-const triggerFileInput = () => {
-  fileInput.value?.click();
-};
+const { addLostItem, loading, error } = useLostItems();
+
+const triggerFileInput = () => fileInput.value?.click();
 
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -149,7 +159,17 @@ const removeImage = () => {
   imagePreview.value = null;
 };
 
-const submitForm = () => {
+// ✅ Convert file to Base64
+const convertToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
+const submitForm = async () => {
   if (
     !itemName.value ||
     !description.value ||
@@ -160,16 +180,34 @@ const submitForm = () => {
     return;
   }
 
-  const formData = {
-    itemName: itemName.value,
-    description: description.value,
-    location: location.value,
-    contactEmail: contactEmail.value,
-    image: image.value,
-  };
+  try {
+    let base64Image = "";
+    if (image.value) {
+      base64Image = await convertToBase64(image.value);
+    }
 
-  console.log("Form Submitted:", formData);
-  alert("Lost item posted successfully!");
-  emit("close");
+    await addLostItem({
+      itemName: itemName.value,
+      description: description.value,
+      location: location.value,
+      contactEmail: contactEmail.value,
+      image: base64Image, // ✅ Send Base64 instead of File
+      category: selectedCategory.value,
+    });
+
+    alert("✅ Lost item posted successfully!");
+    emit("close");
+    window.location.reload(); // Reload to see the new item
+
+    // Reset form
+    itemName.value = "";
+    description.value = "";
+    location.value = "";
+    contactEmail.value = "";
+    removeImage();
+  } catch (err) {
+    console.error(err);
+    alert(error.value || "Something went wrong!");
+  }
 };
 </script>

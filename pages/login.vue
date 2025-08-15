@@ -72,9 +72,11 @@
 <script setup>
 import { ref } from "vue";
 import { useAuth } from "@/composables/auth";
+
 const email = ref("");
 const password = ref("");
 const remember = ref(false);
+const cookies = useCookie("login"); // Nuxt composable for cookies
 
 const { login, error, currentUser } = useAuth();
 
@@ -88,18 +90,30 @@ const handleLogin = async () => {
     const user = await login(email.value, password.value);
     console.log("Login successful:", user);
 
-    // ✅ Optional: Store user in local storage if 'Remember me' is checked
+    // ✅ Store user details
     if (remember.value) {
       localStorage.setItem("user", JSON.stringify(user));
+      console.log("Stored in Local Storage:", localStorage.getItem("user"));
+    } else {
+      cookies.value = JSON.stringify(user);
+      console.log("Stored in Cookie:", cookies.value);
     }
 
     // ✅ Redirect after successful login
-    navigateTo("/"); // change route as needed
+    navigateTo("/");
   } catch (err) {
     console.error("Login error:", err);
     alert(error.value || "Login failed. Please try again.");
   }
 };
+
+// ✅ Check stored data (on page load)
+onMounted(() => {
+  const localUser = localStorage.getItem("user");
+  const cookieUser = cookies.value;
+  console.log("Local Storage User:", localUser);
+  console.log("Cookie User:", cookieUser);
+});
 </script>
 
 <style scoped>
