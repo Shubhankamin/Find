@@ -55,7 +55,7 @@
                   />
                   <v-select
                     :items="categories"
-                    label="Filter by Category"
+                    placeholder="Select Category"
                     variant="outlined"
                     dense
                     v-model="selectedCategory"

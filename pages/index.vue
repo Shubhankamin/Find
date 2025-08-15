@@ -6,7 +6,7 @@
       >
         <v-col cols="12" md="12" class="overflow-x-hidden">
           <div class="d-flex justify-end px-5" v-if="logout">
-            <v-btn class="bg-grey">Logout</v-btn>
+            <v-btn class="bg-grey" @click="loggingOut">Logout</v-btn>
           </div>
           <h1 class="bebas-Bold-h1 text-white mb-4">Lost & Found</h1>
 
@@ -58,6 +58,13 @@ onMounted(() => {
     logout.value = false;
   }
 });
+
+const loggingOut = () => {
+  cookies.value = null;
+  logout.value = false;
+  router.push("/login");
+  console.log("Logged out successfully");
+};
 
 const openDialog = () => {
   if (!cookies.value) {
