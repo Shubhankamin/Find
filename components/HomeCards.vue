@@ -11,7 +11,12 @@
           :key="index"
           class="d-flex justify-center"
         >
-          <v-card class="modern-card" elevation="3" max-width="350" min-width="300">
+          <v-card
+            class="modern-card"
+            elevation="3"
+            max-width="350"
+            min-width="300"
+          >
             <!-- Image -->
             <v-img
               :src="item.image"
@@ -49,8 +54,16 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useLostItems } from "~/composables/useLostItems";
+
+// ✅ Props
+const props = defineProps({
+  selectedCategory: {
+    type: String,
+    default: "",
+  },
+});
 
 // ✅ Format Date Function
 const formatDate = (dateString: any) => {
@@ -67,20 +80,44 @@ const formatDate = (dateString: any) => {
 };
 
 // ✅ Use Composable
-const { getLostItems, loading, error } = useLostItems();
+const { getLostItems } = useLostItems();
 
 // ✅ Reactive items array
 const items = ref<any[]>([]);
 
-// ✅ Fetch Data on Mount
-onMounted(async () => {
+// ✅ Fetch Data Function
+const fetchItems = async (category?: string) => {
   try {
-    items.value = await getLostItems();
+    const data = await getLostItems();
+    if (category) {
+      items.value = data.filter(
+        (item: any) =>
+          item.category &&
+          item.category.toLowerCase() === category.toLowerCase()
+      );
+    } else {
+      items.value = data;
+    }
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching lost items:", err);
   }
+};
+
+// ✅ Initial Fetch
+onMounted(() => {
+  fetchItems(props.selectedCategory);
 });
+
+// ✅ Watch for Category Changes
+watch(
+  () => props.selectedCategory,
+  (newCategory) => {
+    console.log("Category changed:", newCategory);
+    fetchItems(newCategory);
+  }
+);
 </script>
+
 <style scoped>
 /* Text Truncate */
 .truncate-text {

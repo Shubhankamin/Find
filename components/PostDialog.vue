@@ -130,7 +130,7 @@ import { useLostItems } from "@/composables/useLostItems";
 
 const props = defineProps<{ open: boolean }>();
 const emit = defineEmits<{ (e: "close"): void }>();
-const categories = ["All", "Electronics", "Books", "Accessories", "Documents"];
+const categories = ["Bags", "Electronics", "Books", "Accessories", "Documents", "Others"];
 const selectedCategory = ref("All");
 
 const itemName = ref("");
