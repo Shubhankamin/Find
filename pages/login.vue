@@ -1,85 +1,94 @@
 <template>
-  <v-container fluid class="login-container d-flex align-center justify-center">
-    <v-card
-      class="login-card pa-6 pa-sm-8 pa-md-10"
-      :max-width="450"
-      elevation="10"
-    >
-      <!-- Header -->
-      <div class="text-center mb-6">
-        <h1 class="text-h5 text-md-h4 font-weight-bold mb-2">Log In</h1>
-        <p class="text-body-2 text-medium-emphasis">
-          Access your Lost & Found account
-        </p>
-      </div>
+  <v-container fluid class="login-container">
+    <v-row class="justify-center align-center">
+      <v-col cols="8" sm="4" md="2" >
+        <v-img src="/images/logo-2.png"></v-img>
+      </v-col>
+    </v-row>
+    <v-row class="justify-center">
+      <v-col class="d-flex align-center justify-center" cols="12">
+        <v-card
+          class="login-card pa-6 pa-sm-8 pa-md-10"
+          :max-width="450"
+          elevation="10"
+        >
+          <!-- Header -->
+          <div class="text-center mb-6">
+            <h1 class="text-h5 text-md-h4 font-weight-bold mb-2">Log In</h1>
+            <p class="text-body-2 text-medium-emphasis">
+              Access your Lost & Found account
+            </p>
+          </div>
 
-      <!-- Form -->
-      <v-form>
-        <v-text-field
-          placeholder="Enter your email"
-          variant="outlined"
-          prepend-inner-icon="mdi-email-outline"
-          class="mb-4 rounded-input"
-          v-model="email"
-        />
+          <!-- Form -->
+          <v-form>
+            <v-text-field
+              placeholder="Enter your email"
+              variant="outlined"
+              prepend-inner-icon="mdi-email-outline"
+              class="mb-4 rounded-input"
+              v-model="email"
+            />
 
-        <v-text-field
-          placeholder="Enter your password"
-          type="password"
-          variant="outlined"
-          prepend-inner-icon="mdi-lock-outline"
-          class=" rounded-input"
-          v-model="password"
-        />
+            <v-text-field
+              placeholder="Enter your password"
+              type="password"
+              variant="outlined"
+              prepend-inner-icon="mdi-lock-outline"
+              class="rounded-input"
+              v-model="password"
+            />
 
-        <!-- Remember & Forgot -->
-        <div class="d-flex justify-end align-center mb-4 flex-wrap">
-          <!-- <v-checkbox
+            <!-- Remember & Forgot -->
+            <div class="d-flex justify-end align-center mb-4 flex-wrap">
+              <!-- <v-checkbox
             label="Remember me"
             hide-details
             density="compact"
             v-model="remember"
           /> -->
-          <v-btn
-            variant="text"
-            size="small"
-            class="text-primary"
-            @click="goToForgot"
-          >
-            Forgot password?
-          </v-btn>
-        </div>
+              <v-btn
+                variant="text"
+                size="small"
+                class="text-primary"
+                @click="goToForgot"
+              >
+                Forgot password?
+              </v-btn>
+            </div>
 
-        <!-- Login Button -->
-        <v-btn
-          block
-          color="primary"
-          size="large"
-          class="rounded-pill text-white mb-6"
-          @click="handleLogin"
-        >
-          Sign In
-        </v-btn>
+            <!-- Login Button -->
+            <v-btn
+              block
+              color="primary"
+              size="large"
+              class="rounded-pill text-white mb-6"
+              @click="handleLogin"
+            >
+              Sign In
+            </v-btn>
 
-        <!-- Divider -->
-        <div class="divider mb-6">
-          <span>OR</span>
-        </div>
+            <!-- Divider -->
+            <div class="divider mb-6">
+              <span>OR</span>
+            </div>
 
-        <!-- Signup -->
-        <p class="text-center text-body-2 mt-6">
-          Don't have an account?
-          <v-btn
-            variant="text"
-            size="small"
-            class="text-primary"
-            @click="gotToSignup"
-          >
-            Create one
-          </v-btn>
-        </p>
-      </v-form>
-    </v-card>
+            <!-- Signup -->
+            <p class="text-center text-body-2 mt-6">
+              Don't have an account?
+              <v-btn
+                variant="text"
+                size="small"
+                class="text-primary"
+                @click="gotToSignup"
+              >
+                Create one
+              </v-btn>
+            </p>
+          </v-form>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

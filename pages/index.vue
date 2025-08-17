@@ -15,7 +15,13 @@
             </v-tooltip>
           </div>
 
-          <h1 class="bebas-Bold-h1 text-white mb-4">Lost & Found</h1>
+          <v-row class="justify-center align-center">
+            <v-col cols="2">
+              <v-img src="/images/logo-2.png"></v-img>
+            </v-col>
+          </v-row>
+
+          <!-- <h1 class="bebas-Bold-h1 text-white mb-4">Lost & Found</h1> -->
 
           <p class="manrope-regular-h5 text-white mb-6 mx-5">
             Lost something on campus or found an item? Use our platform to

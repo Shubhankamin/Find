@@ -1,10 +1,12 @@
 <template>
-  <v-container
-    fluid
-    class="signup-container d-flex align-center justify-center"
-  >
+  <v-container fluid class="signup-container">
+    <v-row class="justify-center align-center">
+      <v-col cols="8" sm="4" md="2" >
+        <v-img src="/images/logo-2.png"></v-img>
+      </v-col>
+    </v-row>
     <v-row class="justify-center">
-      <v-col class="d-flex align-center justify-center" cols="12">
+      <v-col class="d-flex align-center justify-center" cols="12" >
         <v-card class="signup-card pa-10" max-width="450" elevation="5">
           <!-- Header -->
           <div class="text-center mb-6">
