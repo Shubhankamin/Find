@@ -6,8 +6,15 @@
       >
         <v-col cols="12" md="12" class="overflow-x-hidden">
           <div class="d-flex justify-end px-5" v-if="logout">
-            <v-btn class="bg-grey" @click="loggingOut">Logout</v-btn>
+            <v-tooltip text="Logout" location="bottom">
+              <template #activator="{ props }">
+                <v-btn v-bind="props" icon color="grey" @click="loggingOut">
+                  <v-icon>mdi-power</v-icon>
+                </v-btn>
+              </template>
+            </v-tooltip>
           </div>
+
           <h1 class="bebas-Bold-h1 text-white mb-4">Lost & Found</h1>
 
           <p class="manrope-regular-h5 text-white mb-6 mx-5">
@@ -37,10 +44,14 @@
           </div>
         </v-col>
       </v-row>
-      <PostDialog :open="dialog" @close="closeDialog" /> <Search />
-      <Categories />
+      <PostDialog :open="dialog" @close="closeDialog" />
+      <Search @search="updateSearch" />
+      <Categories @categorySelected="filterCategory" />
 
-      <HomeCards />
+      <HomeCards
+        :selectedCategory="selectedCategory"
+        :searchTerm="searchTerm"
+      />
       <HowItWorks />
     </v-container>
   </div>
@@ -50,6 +61,15 @@ const dialog = ref(false);
 const cookies = useCookie("login");
 const logout = ref(false);
 const router = useRouter();
+const selectedCategory = ref("");
+
+const searchTerm = ref("");
+
+const updateSearch = (term) => {
+  searchTerm.value = term;
+  console.log("Search term updated:", searchTerm.value);
+};
+
 onMounted(() => {
   console.log("Home Cookies:", cookies.value);
   if (cookies.value) {
@@ -62,12 +82,13 @@ onMounted(() => {
 const loggingOut = () => {
   cookies.value = null;
   logout.value = false;
-  router.push("/login");
+  router.push("/");
   console.log("Logged out successfully");
 };
 
 const openDialog = () => {
   if (!cookies.value) {
+    
     router.push("/login");
     return;
   } else {
@@ -77,6 +98,9 @@ const openDialog = () => {
 
 const closeDialog = () => {
   dialog.value = false;
+};
+const filterCategory = (category) => {
+  selectedCategory.value = category;
 };
 </script>
 <style scoped>

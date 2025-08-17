@@ -1,9 +1,13 @@
 <template>
   <v-container fluid class="login-container d-flex align-center justify-center">
-    <v-card class="login-card pa-10" max-width="400" elevation="10">
+    <v-card
+      class="login-card pa-6 pa-sm-8 pa-md-10"
+      :max-width="450"
+      elevation="10"
+    >
       <!-- Header -->
       <div class="text-center mb-6">
-        <h1 class="text-h4 font-weight-bold mb-2">Sign In</h1>
+        <h1 class="text-h5 text-md-h4 font-weight-bold mb-2">Log In</h1>
         <p class="text-body-2 text-medium-emphasis">
           Access your Lost & Found account
         </p>
@@ -29,14 +33,19 @@
         />
 
         <!-- Remember & Forgot -->
-        <div class="d-flex justify-space-between align-center mb-4">
+        <div class="d-flex justify-space-between align-center mb-4 flex-wrap">
           <v-checkbox
             label="Remember me"
             hide-details
             density="compact"
             v-model="remember"
           />
-          <v-btn variant="text" size="small" class="text-primary">
+          <v-btn
+            variant="text"
+            size="small"
+            class="text-primary"
+            @click="goToForgot"
+          >
             Forgot password?
           </v-btn>
         </div>
@@ -60,7 +69,12 @@
         <!-- Signup -->
         <p class="text-center text-body-2 mt-6">
           Don't have an account?
-          <v-btn variant="text" size="small" class="text-primary">
+          <v-btn
+            variant="text"
+            size="small"
+            class="text-primary"
+            @click="gotToSignup"
+          >
             Create one
           </v-btn>
         </p>
@@ -76,9 +90,17 @@ import { useAuth } from "@/composables/auth";
 const email = ref("");
 const password = ref("");
 const remember = ref(false);
+const router = useRouter();
 const cookies = useCookie("login"); // Nuxt composable for cookies
 
+const goToForgot = () => {
+  router.push("/forgotPassword");
+};
 const { login, error, currentUser } = useAuth();
+
+const gotToSignup = () => {
+  router.push("/signup");
+};
 
 const handleLogin = async () => {
   try {
@@ -120,11 +142,13 @@ onMounted(() => {
 .login-container {
   background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
   min-height: 100vh;
+  padding: 16px;
 }
 
 .login-card {
   border-radius: 20px;
   background: #fff;
+  width: 100%;
 }
 
 .divider {
@@ -142,5 +166,15 @@ onMounted(() => {
   height: 1px;
   background: #ddd;
   margin: 0 12px;
+}
+
+/* Make fonts and padding smaller on small screens */
+@media (max-width: 600px) {
+  .login-card {
+    padding: 16px !important;
+  }
+  .text-h4 {
+    font-size: 1.4rem !important;
+  }
 }
 </style>

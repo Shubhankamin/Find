@@ -7,12 +7,16 @@
           sm="6"
           md="3"
           lg="3"
-          v-for="(item, index) in items"
+          v-for="(item, index) in filteredItems"
           :key="index"
           class="d-flex justify-center"
         >
-          <v-card class="modern-card" elevation="3" max-width="350" min-width="300">
-            <!-- Image -->
+          <v-card
+            class="modern-card"
+            elevation="3"
+            max-width="350"
+            min-width="300"
+          >
             <v-img
               :src="item.image"
               height="200"
@@ -20,24 +24,23 @@
               class="rounded-lg"
             ></v-img>
 
-            <!-- Title & Location -->
             <v-card-title>{{ item.name }}</v-card-title>
             <v-card-subtitle>{{ item.location }}</v-card-subtitle>
 
-            <!-- Date Posted -->
             <v-card-subtitle class="text-grey-darken-1 text-caption">
               Posted on: {{ formatDate(item.createdAt) }}
             </v-card-subtitle>
 
-            <!-- Description -->
             <v-card-text class="truncate-text">
               {{ item.description }}
             </v-card-text>
 
-            <!-- Actions -->
             <v-card-actions>
               <div class="px-2">
-                <button class="px-8 bg-green py-2 text-white rounded-lg mb-4">
+                <button
+                  class="px-8 bg-green py-2 text-white rounded-lg mb-4"
+                  @click="openDialog(item)"
+                >
                   Claim
                 </button>
               </div>
@@ -45,14 +48,64 @@
           </v-card>
         </v-col>
       </v-row>
+
+      <!-- Claim Dialog -->
+      <v-dialog v-model="showDialog" max-width="800">
+        <v-card>
+          <v-card-title class="d-flex justify-space-between align-center">
+            <span class="text-h6">Claim Lost Item</span>
+            <v-btn icon @click="showDialog = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </v-card-title>
+          <v-card-text>
+            <v-row class="justify-center">
+              <v-col cols="12" md="6">
+                <v-img
+                  v-if="selectedItem?.image"
+                  :src="selectedItem.image"
+                  height="200"
+                  class="mb-3 rounded-lg"
+                  cover
+                ></v-img>
+              </v-col>
+            </v-row>
+
+            <div class="pt-5">
+              <div>
+                <strong>Email:</strong> {{ selectedItem?.contactEmail }}
+              </div>
+              <div><strong>Location:</strong> {{ selectedItem?.location }}</div>
+              <div>
+                <strong>Description:</strong> {{ selectedItem?.description }}
+              </div>
+              <div>
+                <strong>Posted On:</strong>
+                {{ formatDate(selectedItem?.createdAt) }}
+              </div>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
     </v-container>
   </div>
 </template>
+
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useLostItems } from "~/composables/useLostItems";
 
-// ✅ Format Date Function
+const props = defineProps({
+  selectedCategory: {
+    type: String,
+    default: "",
+  },
+});
+
+const showDialog = ref(false);
+const selectedItem = ref<any>(null);
+const cookies = useCookie("login");
+const router = useRouter();
 const formatDate = (dateString: any) => {
   if (!dateString) return "N/A";
   const date =
@@ -66,23 +119,51 @@ const formatDate = (dateString: any) => {
   });
 };
 
-// ✅ Use Composable
-const { getLostItems, loading, error } = useLostItems();
+const openDialog = (item: any) => {
+  if (!cookies.value) {
+    router.push("/login");
+    return;
+  }
+  selectedItem.value = item;
+  showDialog.value = true;
+};
 
-// ✅ Reactive items array
+const { getLostItems } = useLostItems();
+
 const items = ref<any[]>([]);
 
-// ✅ Fetch Data on Mount
-onMounted(async () => {
+const fetchItems = async () => {
   try {
-    items.value = await getLostItems();
+    const data = await getLostItems();
+    items.value = data;
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching lost items:", err);
   }
+};
+
+onMounted(() => {
+  fetchItems();
+});
+
+const filteredItems = computed(() => {
+  let result = items.value;
+
+  if (
+    props.selectedCategory &&
+    props.selectedCategory.toLowerCase() !== "all"
+  ) {
+    result = result.filter(
+      (item: any) =>
+        item.category &&
+        item.category.toLowerCase() === props.selectedCategory.toLowerCase()
+    );
+  }
+
+  return result;
 });
 </script>
+
 <style scoped>
-/* Text Truncate */
 .truncate-text {
   overflow: hidden;
   text-overflow: ellipsis;
