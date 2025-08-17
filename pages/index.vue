@@ -45,7 +45,7 @@
         </v-col>
       </v-row>
       <PostDialog :open="dialog" @close="closeDialog" />
-      <Search @search="updateSearch" />
+      <!-- <Search @search="updateSearch" /> -->
       <Categories @categorySelected="filterCategory" />
 
       <HomeCards

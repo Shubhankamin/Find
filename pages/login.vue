@@ -28,18 +28,18 @@
           type="password"
           variant="outlined"
           prepend-inner-icon="mdi-lock-outline"
-          class="mb-4 rounded-input"
+          class=" rounded-input"
           v-model="password"
         />
 
         <!-- Remember & Forgot -->
-        <div class="d-flex justify-space-between align-center mb-4 flex-wrap">
-          <v-checkbox
+        <div class="d-flex justify-end align-center mb-4 flex-wrap">
+          <!-- <v-checkbox
             label="Remember me"
             hide-details
             density="compact"
             v-model="remember"
-          />
+          /> -->
           <v-btn
             variant="text"
             size="small"
