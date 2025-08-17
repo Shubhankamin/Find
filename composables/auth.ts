@@ -4,6 +4,7 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   onAuthStateChanged,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { useCookie } from "#app";
 
@@ -11,7 +12,7 @@ export const useAuth = () => {
   const { $auth } = useNuxtApp(); // Firebase Auth instance
   const currentUser = ref<any>(null);
   const error = ref<string | null>(null);
-
+  const message = ref<string | null>(null);
   // ✅ Login function
   const login = async (
     email: string,
@@ -83,6 +84,17 @@ export const useAuth = () => {
     }
   };
 
+  const forgotPassword = async (email: string) => {
+    error.value = null;
+    message.value = null;
+    try {
+      await sendPasswordResetEmail($auth, email);
+      message.value = "Password reset email sent. Check your inbox.";
+    } catch (err: any) {
+      error.value = err.message;
+    }
+  };
+
   // ✅ Logout function
   const logout = async () => {
     await $auth.signOut();
@@ -115,5 +127,6 @@ export const useAuth = () => {
     login,
     signUp,
     logout,
+    forgotPassword,
   };
 };

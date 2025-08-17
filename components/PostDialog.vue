@@ -53,6 +53,8 @@
                     density="comfortable"
                     required
                   />
+
+                  <!-- Category -->
                   <v-select
                     :items="categories"
                     placeholder="Select Category"
@@ -61,49 +63,68 @@
                     v-model="selectedCategory"
                   />
 
-                  <!-- Custom Image Upload -->
-                  <div class="upload-box" @click="triggerFileInput">
-                    <input
-                      type="file"
-                      ref="fileInput"
-                      accept="image/*"
-                      capture="environment"
-                      @change="handleFileChange"
-                      style="display: none"
-                    />
-                    <div class="upload-content">
-                      <v-btn color="primary" class="mb-2">Select Images</v-btn>
-                      <p class="text-grey">or drag & drop here</p>
+                  <!-- Multi-Image Upload Section -->
+                  <div class="upload-section mt-4">
+                    <p class="mb-2 font-weight-medium">
+                      Upload up to 4 images (Min 1 required)
+                    </p>
+                    <div class="d-flex flex-wrap" style="gap: 10px">
+                      <div
+                        v-for="(img, index) in images"
+                        :key="index"
+                        class="upload-box"
+                        style="
+                          width: 100px;
+                          height: 100px;
+                          border: 2px dashed #ccc;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          border-radius: 8px;
+                          position: relative;
+                          cursor: pointer;
+                        "
+                        @click="triggerFileInput(index)"
+                      >
+                        <input
+                          type="file"
+                          :ref="(el) => (fileInputs[index] = el)"
+                          accept="image/*"
+                          style="display: none"
+                          @change="handleFileChange($event, index)"
+                        />
+                        <template v-if="img">
+                          <img
+                            :src="imagePreviews[index]"
+                            alt="Preview"
+                            style="
+                              width: 100%;
+                              height: 100%;
+                              object-fit: cover;
+                              border-radius: 8px;
+                            "
+                          />
+                          <!-- Delete Icon -->
+                          <v-btn
+                            icon
+                            size="small"
+                            color="red"
+                            style="
+                              position: absolute;
+                              top: 5px;
+                              right: 5px;
+                              background: white;
+                            "
+                            @click.stop="removeImage(index)"
+                          >
+                            <v-icon>mdi-close</v-icon>
+                          </v-btn>
+                        </template>
+                        <template v-else>
+                          <v-icon color="grey">mdi-plus</v-icon>
+                        </template>
+                      </div>
                     </div>
-                  </div>
-
-                  <!-- Show preview if image selected -->
-                  <div
-                    v-if="image"
-                    class="mt-3 text-center"
-                    style="position: relative; display: inline-block"
-                  >
-                    <img
-                      :src="imagePreview"
-                      alt="Preview"
-                      style="max-width: 100%; border-radius: 8px"
-                    />
-
-                    <!-- Delete Icon -->
-                    <v-btn
-                      icon
-                      size="small"
-                      color="red"
-                      style="
-                        position: absolute;
-                        top: 8px;
-                        right: 8px;
-                        background: white;
-                      "
-                      @click="removeImage"
-                    >
-                      <v-icon>mdi-close</v-icon>
-                    </v-btn>
                   </div>
                 </v-form>
               </v-card-text>
@@ -130,33 +151,43 @@ import { useLostItems } from "@/composables/useLostItems";
 
 const props = defineProps<{ open: boolean }>();
 const emit = defineEmits<{ (e: "close"): void }>();
-const categories = ["Bags", "Electronics", "Books", "Accessories", "Documents", "Others"];
-const selectedCategory = ref("All");
+const categories = [
+  "Bags",
+  "Electronics",
+  "Books",
+  "Accessories",
+  "Documents",
+  "Others",
+];
+const selectedCategory = ref("");
 
 const itemName = ref("");
 const description = ref("");
 const location = ref("");
 const contactEmail = ref("");
-const image = ref<File | null>(null);
-const imagePreview = ref<string | null>(null);
 
-const fileInput = ref<HTMLInputElement | null>(null);
+// ✅ Multiple Images
+const images = ref<(File | null)[]>([null, null, null, null]);
+const imagePreviews = ref<(string | null)[]>([null, null, null, null]);
+const fileInputs = ref<HTMLInputElement[]>([]);
 
 const { addLostItem, loading, error } = useLostItems();
 
-const triggerFileInput = () => fileInput.value?.click();
+const triggerFileInput = (index: number) => {
+  fileInputs.value[index]?.click();
+};
 
-const handleFileChange = (event: Event) => {
+const handleFileChange = (event: Event, index: number) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
-    image.value = target.files[0];
-    imagePreview.value = URL.createObjectURL(image.value);
+    images.value[index] = target.files[0];
+    imagePreviews.value[index] = URL.createObjectURL(target.files[0]);
   }
 };
 
-const removeImage = () => {
-  image.value = null;
-  imagePreview.value = null;
+const removeImage = (index: number) => {
+  images.value[index] = null;
+  imagePreviews.value[index] = null;
 };
 
 // ✅ Convert file to Base64
@@ -180,31 +211,38 @@ const submitForm = async () => {
     return;
   }
 
+  const selectedImages = images.value.filter((img) => img !== null);
+  if (selectedImages.length < 1) {
+    alert("Please upload at least one image.");
+    return;
+  }
+
   try {
-    let base64Image = "";
-    if (image.value) {
-      base64Image = await convertToBase64(image.value);
-    }
+    // Convert all selected images to Base64
+    const base64Images = await Promise.all(
+      selectedImages.map((img) => convertToBase64(img!))
+    );
 
     await addLostItem({
       itemName: itemName.value,
       description: description.value,
       location: location.value,
       contactEmail: contactEmail.value,
-      image: base64Image, // ✅ Send Base64 instead of File
+      images: base64Images, // ✅ Send multiple images as array
       category: selectedCategory.value,
     });
 
     alert("✅ Lost item posted successfully!");
     emit("close");
-    window.location.reload(); // Reload to see the new item
+    window.location.reload();
 
     // Reset form
     itemName.value = "";
     description.value = "";
     location.value = "";
     contactEmail.value = "";
-    removeImage();
+    images.value = [null, null, null, null];
+    imagePreviews.value = [null, null, null, null];
   } catch (err) {
     console.error(err);
     alert(error.value || "Something went wrong!");

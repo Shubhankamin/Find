@@ -84,7 +84,7 @@
                 class="text-primary"
                 @click="goToLogin"
               >
-                Sign In
+                Log In
               </v-btn>
             </p>
           </v-form>

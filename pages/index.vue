@@ -44,10 +44,14 @@
           </div>
         </v-col>
       </v-row>
-      <PostDialog :open="dialog" @close="closeDialog" /> <Search />
+      <PostDialog :open="dialog" @close="closeDialog" />
+      <Search @search="updateSearch" />
       <Categories @categorySelected="filterCategory" />
 
-      <HomeCards :selectedCategory="selectedCategory" />
+      <HomeCards
+        :selectedCategory="selectedCategory"
+        :searchTerm="searchTerm"
+      />
       <HowItWorks />
     </v-container>
   </div>
@@ -58,6 +62,14 @@ const cookies = useCookie("login");
 const logout = ref(false);
 const router = useRouter();
 const selectedCategory = ref("");
+
+const searchTerm = ref("");
+
+const updateSearch = (term) => {
+  searchTerm.value = term;
+  console.log("Search term updated:", searchTerm.value);
+};
+
 onMounted(() => {
   console.log("Home Cookies:", cookies.value);
   if (cookies.value) {
@@ -70,12 +82,13 @@ onMounted(() => {
 const loggingOut = () => {
   cookies.value = null;
   logout.value = false;
-  router.push("/login");
+  router.push("/");
   console.log("Logged out successfully");
 };
 
 const openDialog = () => {
   if (!cookies.value) {
+    
     router.push("/login");
     return;
   } else {
