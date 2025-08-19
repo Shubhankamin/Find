@@ -1,7 +1,7 @@
 <template>
   <v-container fluid class="login-container">
     <v-row class="justify-center align-center">
-      <v-col cols="8" sm="4" md="2" >
+      <v-col cols="8" sm="4" md="2">
         <v-img src="/images/logo-2.png"></v-img>
       </v-col>
     </v-row>
@@ -65,7 +65,7 @@
               class="rounded-pill text-white mb-6"
               @click="handleLogin"
             >
-              Sign In
+              Log In
             </v-btn>
 
             <!-- Divider -->
@@ -120,15 +120,14 @@ const handleLogin = async () => {
 
     const user = await login(email.value, password.value);
     console.log("Login successful:", user);
-
+    cookies.value = JSON.stringify(user);
+    console.log("Stored in Cookie:", cookies.value);
     // ✅ Store user details
-    if (remember.value) {
-      localStorage.setItem("user", JSON.stringify(user));
-      console.log("Stored in Local Storage:", localStorage.getItem("user"));
-    } else {
-      cookies.value = JSON.stringify(user);
-      console.log("Stored in Cookie:", cookies.value);
-    }
+    // if (remember.value) {
+    //   localStorage.setItem("user", JSON.stringify(user));
+    //   console.log("Stored in Local Storage:", localStorage.getItem("user"));
+    // } else {
+    // }
 
     // ✅ Redirect after successful login
     navigateTo("/");

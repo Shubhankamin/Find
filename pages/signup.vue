@@ -1,12 +1,12 @@
 <template>
   <v-container fluid class="signup-container">
     <v-row class="justify-center align-center">
-      <v-col cols="8" sm="4" md="2" >
+      <v-col cols="8" sm="4" md="2">
         <v-img src="/images/logo-2.png"></v-img>
       </v-col>
     </v-row>
     <v-row class="justify-center">
-      <v-col class="d-flex align-center justify-center" cols="12" >
+      <v-col class="d-flex align-center justify-center" cols="12">
         <v-card class="signup-card pa-10" max-width="450" elevation="5">
           <!-- Header -->
           <div class="text-center mb-6">
@@ -17,79 +17,80 @@
           </div>
 
           <!-- Form -->
-          <v-form ref="signupForm">
-            <v-text-field
-              placeholder="Full Name"
-              variant="outlined"
-              prepend-inner-icon="mdi-account-outline"
-              class="mb-4 rounded-input"
-              v-model="fullName"
-              :rules="[rules.required]"
-              density="compact"
-            />
+          <!-- <v-form ref="signupForm">
+            
+          </v-form> -->
+          <v-text-field
+            placeholder="Full Name"
+            variant="outlined"
+            prepend-inner-icon="mdi-account-outline"
+            class="mb-4 rounded-input"
+            v-model="fullName"
+            :rules="[rules.required]"
+            density="compact"
+          />
 
-            <v-text-field
-              placeholder="Enter your email"
-              variant="outlined"
-              prepend-inner-icon="mdi-email-outline"
-              class="mb-4 rounded-input"
-              density="compact"
-              v-model="email"
-              :rules="[rules.required, rules.emailFormat]"
-            />
+          <v-text-field
+            placeholder="Enter your email"
+            variant="outlined"
+            prepend-inner-icon="mdi-email-outline"
+            class="mb-4 rounded-input"
+            density="compact"
+            v-model="email"
+            :rules="[rules.required, rules.emailFormat]"
+          />
 
-            <v-text-field
-              placeholder="Create password"
-              type="password"
-              variant="outlined"
-              prepend-inner-icon="mdi-lock-outline"
-              class="mb-4 rounded-input"
-              density="compact"
-              v-model="password"
-              :rules="[rules.required, rules.password]"
-            />
+          <v-text-field
+            placeholder="Create password"
+            type="password"
+            variant="outlined"
+            prepend-inner-icon="mdi-lock-outline"
+            class="mb-4 rounded-input"
+            density="compact"
+            v-model="password"
+            :rules="[rules.required, rules.password]"
+          />
 
-            <v-text-field
-              placeholder="Confirm password"
-              type="password"
-              variant="outlined"
-              prepend-inner-icon="mdi-lock-check-outline"
-              class="mb-4 rounded-input"
-              density="compact"
-              v-model="confirmPassword"
-              :rules="[rules.required, rules.matchPassword]"
-            />
+          <v-text-field
+            placeholder="Confirm password"
+            type="password"
+            variant="outlined"
+            prepend-inner-icon="mdi-lock-check-outline"
+            class="mb-4 rounded-input"
+            density="compact"
+            v-model="confirmPassword"
+            :rules="[rules.required, rules.matchPassword]"
+          />
 
-            <!-- Sign Up Button -->
+          <!-- Sign Up Button -->
+          <v-btn
+            block
+            color="primary"
+            size="large"
+            class="rounded-pill text-white mb-6"
+            type="submit"
+            @click="handleSignup"
+          >
+            Sign Up
+          </v-btn>
+
+          <!-- Divider -->
+          <div class="divider mb-6">
+            <span>OR</span>
+          </div>
+
+          <!-- Already have an account -->
+          <p class="text-center text-body-2 mt-6">
+            Already have an account?
             <v-btn
-              block
-              color="primary"
-              size="large"
-              class="rounded-pill text-white mb-6"
-              type="submit"
-              @click="handleSignup"
+              variant="text"
+              size="small"
+              class="text-primary"
+              @click="goToLogin"
             >
-              Sign Up
+              Log In
             </v-btn>
-
-            <!-- Divider -->
-            <div class="divider mb-6">
-              <span>OR</span>
-            </div>
-
-            <!-- Already have an account -->
-            <p class="text-center text-body-2 mt-6">
-              Already have an account?
-              <v-btn
-                variant="text"
-                size="small"
-                class="text-primary"
-                @click="goToLogin"
-              >
-                Log In
-              </v-btn>
-            </p>
-          </v-form>
+          </p>
         </v-card>
       </v-col>
     </v-row>
@@ -126,7 +127,7 @@ const handleSignup = async () => {
   try {
     await signUp(fullName.value, email.value, password.value);
     console.log("Signup successful");
-    router.push("/"); // Redirect to home or dashboard
+    router.push("/login"); // Redirect to home or dashboard
   } catch (err) {
     console.error("Signup error:", error.value);
   }

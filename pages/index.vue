@@ -4,7 +4,7 @@
       <v-row
         class="hero-section text-center py-12 justify-center align-center overflow-hidden"
       >
-        <v-col cols="12" md="12" class="overflow-x-hidden">
+        <v-col cols="12" md="12" class="overflow-x-hidden pa-0">
           <div class="d-flex justify-end px-5" v-if="logout">
             <v-tooltip text="Logout" location="bottom">
               <template #activator="{ props }">
@@ -16,7 +16,7 @@
           </div>
 
           <v-row class="justify-center align-center">
-            <v-col cols="2">
+            <v-col cols="6" md="2" sm="4" >
               <v-img src="/images/logo-2.png"></v-img>
             </v-col>
           </v-row>

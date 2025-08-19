@@ -17,7 +17,6 @@ export const useAuth = () => {
   const login = async (
     email: string,
     password: string,
-    rememberMe: boolean
   ) => {
     error.value = null;
     try {
@@ -30,13 +29,14 @@ export const useAuth = () => {
 
       // ✅ Get ID Token
       const token = await userCredential.user.getIdToken();
+           const tokenCookie = useCookie("accessToken", { maxAge: 3600 }); // 1 hour
+           tokenCookie.value = token;
 
-      if (rememberMe) {
-        localStorage.setItem("accessToken", token);
-      } else {
-        const tokenCookie = useCookie("accessToken", { maxAge: 3600 }); // 1 hour
-        tokenCookie.value = token;
-      }
+      // if (rememberMe) {
+      //   localStorage.setItem("accessToken", token);
+      // } else {
+   
+      // }
 
       return userCredential.user;
     } catch (err: any) {
@@ -46,12 +46,7 @@ export const useAuth = () => {
   };
 
   // ✅ Sign Up function (with name)
-  const signUp = async (
-    fullName: string,
-    email: string,
-    password: string,
-    rememberMe: boolean
-  ) => {
+  const signUp = async (fullName: string, email: string, password: string) => {
     error.value = null;
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -70,12 +65,14 @@ export const useAuth = () => {
       // ✅ Get ID Token
       const token = await userCredential.user.getIdToken();
 
-      if (rememberMe) {
-        localStorage.setItem("accessToken", token);
-      } else {
-        const tokenCookie = useCookie("accessToken", { maxAge: 3600 }); // 1 hour
-        tokenCookie.value = token;
-      }
+      const tokenCookie = useCookie("accessToken", { maxAge: 3600 }); // 1 hour
+      tokenCookie.value = token;
+
+      // if (rememberMe) {
+      //   localStorage.setItem("accessToken", token);
+      // } else {
+
+      // }
 
       return userCredential.user;
     } catch (err: any) {
@@ -102,6 +99,7 @@ export const useAuth = () => {
     const tokenCookie = useCookie("accessToken");
     tokenCookie.value = null;
     currentUser.value = null;
+    
   };
 
   // ✅ Check Auth State and stored tokens

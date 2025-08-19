@@ -52,6 +52,7 @@
                     variant="outlined"
                     density="comfortable"
                     required
+                    readonly
                   />
 
                   <!-- Category -->
@@ -142,6 +143,14 @@
         </v-col>
       </v-row>
     </v-container>
+    <v-snackbar
+      v-model="snackbar"
+      :color="snackbarColor"
+      timeout="3000"
+      location="top"
+    >
+      {{ snackbarMessage }}
+    </v-snackbar>
   </div>
 </template>
 
@@ -151,6 +160,17 @@ import { useLostItems } from "@/composables/useLostItems";
 
 const props = defineProps<{ open: boolean }>();
 const emit = defineEmits<{ (e: "close"): void }>();
+const cookies = useCookie("login");
+
+const snackbar = ref(false);
+const snackbarMessage = ref("");
+const snackbarColor = ref("success");
+
+const showSnackbar = (message: string, color = "success") => {
+  snackbarMessage.value = message;
+  snackbarColor.value = color;
+  snackbar.value = true;
+};
 const categories = [
   "Bags",
   "Electronics",
@@ -160,13 +180,14 @@ const categories = [
   "Others",
 ];
 const selectedCategory = ref("");
+const userEmail = cookies.value?.email || "";
+console.log("User Email in PostDialog:", userEmail);
 
 const itemName = ref("");
 const description = ref("");
 const location = ref("");
-const contactEmail = ref("");
+const contactEmail = ref(userEmail);
 
-// ✅ Multiple Images
 const images = ref<(File | null)[]>([null, null, null, null]);
 const imagePreviews = ref<(string | null)[]>([null, null, null, null]);
 const fileInputs = ref<HTMLInputElement[]>([]);
@@ -207,13 +228,13 @@ const submitForm = async () => {
     !location.value ||
     !contactEmail.value
   ) {
-    alert("Please fill all required fields.");
+    showSnackbar("Please fill all required fields.", "error");
     return;
   }
 
   const selectedImages = images.value.filter((img) => img !== null);
   if (selectedImages.length < 1) {
-    alert("Please upload at least one image.");
+    showSnackbar("Please upload at least one image.", "error");
     return;
   }
 
@@ -228,11 +249,11 @@ const submitForm = async () => {
       description: description.value,
       location: location.value,
       contactEmail: contactEmail.value,
-      images: base64Images, // ✅ Send multiple images as array
+      images: base64Images,
       category: selectedCategory.value,
     });
 
-    alert("✅ Lost item posted successfully!");
+    showSnackbar("✅ Lost item posted successfully!", "success");
     emit("close");
     window.location.reload();
 
@@ -245,7 +266,7 @@ const submitForm = async () => {
     imagePreviews.value = [null, null, null, null];
   } catch (err) {
     console.error(err);
-    alert(error.value || "Something went wrong!");
+    showSnackbar("❌ Something went wrong!", "error");
   }
 };
 </script>

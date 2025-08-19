@@ -18,7 +18,7 @@
             min-width="300"
           >
             <v-img
-              :src="item.image"
+              :src="item.images?.[0]"
               height="200"
               cover
               class="rounded-lg"
@@ -50,7 +50,7 @@
       </v-row>
 
       <!-- Claim Dialog -->
-      <v-dialog v-model="showDialog" max-width="800">
+      <!-- <v-dialog v-model="showDialog" max-width="800">
         <v-card>
           <v-card-title class="d-flex justify-space-between align-center">
             <span class="text-h6">Claim Lost Item</span>
@@ -62,8 +62,8 @@
             <v-row class="justify-center">
               <v-col cols="12" md="6">
                 <v-img
-                  v-if="selectedItem?.image"
-                  :src="selectedItem.image"
+                  v-if="selectedItem?.images"
+                  :src="selectedItem.images[0]"
                   height="200"
                   class="mb-3 rounded-lg"
                   cover
@@ -86,7 +86,7 @@
             </div>
           </v-card-text>
         </v-card>
-      </v-dialog>
+      </v-dialog> -->
     </v-container>
   </div>
 </template>
@@ -135,6 +135,7 @@ const items = ref<any[]>([]);
 const fetchItems = async () => {
   try {
     const data = await getLostItems();
+    console.log("Fetched items:", data);
     items.value = data;
   } catch (err) {
     console.error("Error fetching lost items:", err);
