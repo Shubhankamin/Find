@@ -49,8 +49,7 @@
         </v-col>
       </v-row>
 
-      <!-- Claim Dialog -->
-      <!-- <v-dialog v-model="showDialog" max-width="800">
+      <v-dialog v-model="showDialog" max-width="800">
         <v-card>
           <v-card-title class="d-flex justify-space-between align-center">
             <span class="text-h6">Claim Lost Item</span>
@@ -86,7 +85,7 @@
             </div>
           </v-card-text>
         </v-card>
-      </v-dialog> -->
+      </v-dialog>
     </v-container>
   </div>
 </template>
