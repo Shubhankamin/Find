@@ -108,6 +108,8 @@ const closeDialog = () => {
 const filterCategory = (category) => {
   selectedCategory.value = category;
 };
+
+
 </script>
 <style scoped>
 /* Hero Section Background */

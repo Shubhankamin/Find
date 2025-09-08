@@ -146,8 +146,9 @@ onMounted(() => {
 });
 
 const filteredItems = computed(() => {
-  let result = items.value;
-
+  let result = items.value.filter(
+    (item: any) => item.isEnabled === true || item.isEnabled === undefined
+  );
   if (
     props.selectedCategory &&
     props.selectedCategory.toLowerCase() !== "all"

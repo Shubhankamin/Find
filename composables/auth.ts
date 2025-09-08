@@ -5,19 +5,18 @@ import {
   updateProfile,
   onAuthStateChanged,
   sendPasswordResetEmail,
+  sendEmailVerification,
 } from "firebase/auth";
 import { useCookie } from "#app";
 
 export const useAuth = () => {
-  const { $auth } = useNuxtApp(); // Firebase Auth instance
+  const { $auth } = useNuxtApp(); 
   const currentUser = ref<any>(null);
   const error = ref<string | null>(null);
   const message = ref<string | null>(null);
-  // ✅ Login function
-  const login = async (
-    email: string,
-    password: string,
-  ) => {
+  const emailVerified = ref<boolean>(false);
+
+  const login = async (email: string, password: string) => {
     error.value = null;
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -25,18 +24,17 @@ export const useAuth = () => {
         email,
         password
       );
+
+      if (!userCredential.user.emailVerified) {
+        await $auth.signOut(); 
+        throw new Error("Please verify your email before logging in.");
+      }
+
       currentUser.value = userCredential.user;
 
-      // ✅ Get ID Token
       const token = await userCredential.user.getIdToken();
-           const tokenCookie = useCookie("accessToken", { maxAge: 3600 }); // 1 hour
-           tokenCookie.value = token;
-
-      // if (rememberMe) {
-      //   localStorage.setItem("accessToken", token);
-      // } else {
-   
-      // }
+      const tokenCookie = useCookie("accessToken", { maxAge: 3600 }); 
+      tokenCookie.value = token;
 
       return userCredential.user;
     } catch (err: any) {
@@ -45,7 +43,6 @@ export const useAuth = () => {
     }
   };
 
-  // ✅ Sign Up function (with name)
   const signUp = async (fullName: string, email: string, password: string) => {
     error.value = null;
     try {
@@ -55,30 +52,32 @@ export const useAuth = () => {
         password
       );
 
-      // ✅ Update display name
       await updateProfile(userCredential.user, {
         displayName: fullName,
       });
 
-      currentUser.value = userCredential.user;
+      await sendEmailVerification(userCredential.user);
 
-      // ✅ Get ID Token
-      const token = await userCredential.user.getIdToken();
+      await $auth.signOut();
 
-      const tokenCookie = useCookie("accessToken", { maxAge: 3600 }); // 1 hour
-      tokenCookie.value = token;
-
-      // if (rememberMe) {
-      //   localStorage.setItem("accessToken", token);
-      // } else {
-
-      // }
+      message.value =
+        "Account created successfully. Please verify your email before logging in.";
+      emailVerified.value = false;
 
       return userCredential.user;
     } catch (err: any) {
       error.value = err.message;
       throw err;
     }
+  };
+
+  const checkEmailVerification = async () => {
+    if ($auth.currentUser) {
+      await $auth.currentUser.reload();
+      emailVerified.value = $auth.currentUser.emailVerified;
+      return emailVerified.value;
+    }
+    return false;
   };
 
   const forgotPassword = async (email: string) => {
@@ -92,27 +91,23 @@ export const useAuth = () => {
     }
   };
 
-  // ✅ Logout function
   const logout = async () => {
     await $auth.signOut();
     localStorage.removeItem("accessToken");
     const tokenCookie = useCookie("accessToken");
     tokenCookie.value = null;
     currentUser.value = null;
-    
   };
 
-  // ✅ Check Auth State and stored tokens
   onMounted(() => {
     onAuthStateChanged($auth, (user) => {
       if (user) {
         currentUser.value = user;
+        emailVerified.value = user.emailVerified;
       } else {
-        // Check token in storage/cookie
         const token =
           localStorage.getItem("accessToken") || useCookie("accessToken").value;
         if (token) {
-          // We temporarily set a placeholder (Firebase will refresh)
           currentUser.value = { token };
         }
       }
@@ -122,9 +117,12 @@ export const useAuth = () => {
   return {
     currentUser,
     error,
+    message,
+    emailVerified,
     login,
     signUp,
     logout,
     forgotPassword,
+    checkEmailVerification,
   };
 };

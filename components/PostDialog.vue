@@ -43,6 +43,14 @@
                     density="comfortable"
                     required
                   />
+                  <!-- user-name -->
+                  <v-text-field
+                    v-model="UserName"
+                    placeholder="User Name"
+                    variant="outlined"
+                    density="comfortable"
+                    required
+                  />
 
                   <!-- Email -->
                   <v-text-field
@@ -182,11 +190,14 @@ const categories = [
 const selectedCategory = ref("");
 const userEmail = cookies.value?.email || "";
 console.log("User Email in PostDialog:", userEmail);
+const userName = cookies.value?.displayName || "";
+console.log("User Name in PostDialog:", userName);
 
 const itemName = ref("");
 const description = ref("");
 const location = ref("");
 const contactEmail = ref(userEmail);
+const UserName = ref(userName);
 
 const images = ref<(File | null)[]>([null, null, null, null]);
 const imagePreviews = ref<(string | null)[]>([null, null, null, null]);
@@ -249,6 +260,7 @@ const submitForm = async () => {
       description: description.value,
       location: location.value,
       contactEmail: contactEmail.value,
+      userName: UserName.value,
       images: base64Images,
       category: selectedCategory.value,
     });
@@ -259,6 +271,7 @@ const submitForm = async () => {
 
     // Reset form
     itemName.value = "";
+    userName.value = "";
     description.value = "";
     location.value = "";
     contactEmail.value = "";

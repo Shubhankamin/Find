@@ -31,10 +31,12 @@
             />
 
             <v-text-field
+              :type="showPassword ? 'text' : 'password'"
               placeholder="Enter your password"
-              type="password"
               variant="outlined"
               prepend-inner-icon="mdi-lock-outline"
+              :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+              @click:append-inner="showPassword = !showPassword"
               class="rounded-input"
               v-model="password"
             />
@@ -57,7 +59,6 @@
               </v-btn>
             </div>
 
-            <!-- Login Button -->
             <v-btn
               block
               color="primary"
@@ -68,12 +69,10 @@
               Log In
             </v-btn>
 
-            <!-- Divider -->
             <div class="divider mb-6">
               <span>OR</span>
             </div>
 
-            <!-- Signup -->
             <p class="text-center text-body-2 mt-6">
               Don't have an account?
               <v-btn
@@ -89,6 +88,14 @@
         </v-card>
       </v-col>
     </v-row>
+    <v-snackbar
+      v-model="snackbar.show"
+      :color="snackbar.color"
+      location="bottom"
+      timeout="3000"
+    >
+      {{ snackbar.message }}
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -100,7 +107,8 @@ const email = ref("");
 const password = ref("");
 const remember = ref(false);
 const router = useRouter();
-const cookies = useCookie("login"); // Nuxt composable for cookies
+const cookies = useCookie("login");
+const showPassword = ref(false);
 
 const goToForgot = () => {
   router.push("/forgotPassword");
@@ -111,33 +119,50 @@ const gotToSignup = () => {
   router.push("/signup");
 };
 
+const snackbar = ref({
+  show: false,
+  message: "",
+  color: "red",
+});
+
 const handleLogin = async () => {
   try {
     if (!email.value || !password.value) {
-      alert("Please fill in both fields");
+      snackbar.value = {
+        show: true,
+        message: "Please fill in both fields",
+        color: "red",
+      };
       return;
     }
 
     const user = await login(email.value, password.value);
     console.log("Login successful:", user);
-    cookies.value = JSON.stringify(user);
-    console.log("Stored in Cookie:", cookies.value);
-    // ✅ Store user details
-    // if (remember.value) {
-    //   localStorage.setItem("user", JSON.stringify(user));
-    //   console.log("Stored in Local Storage:", localStorage.getItem("user"));
-    // } else {
-    // }
 
-    // ✅ Redirect after successful login
-    navigateTo("/");
+    cookies.value = JSON.stringify(user);
+
+    snackbar.value = {
+      show: true,
+      message: "Login successful",
+      color: "green",
+    };
+
+    // ✅ Correct navigation for Nuxt 3
+    await navigateTo("/");
   } catch (err) {
     console.error("Login error:", err);
-    alert(error.value || "Login failed. Please try again.");
+
+    const errorMessage =
+      err?.error?.message || err?.message || "Login failed. Please try again.";
+
+    snackbar.value = {
+      show: true,
+      message: errorMessage,
+      color: "red",
+    };
   }
 };
 
-// ✅ Check stored data (on page load)
 onMounted(() => {
   const localUser = localStorage.getItem("user");
   const cookieUser = cookies.value;

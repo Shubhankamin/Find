@@ -8,7 +8,6 @@
     <v-row class="justify-center">
       <v-col class="d-flex align-center justify-center" cols="12">
         <v-card class="signup-card pa-10" max-width="450" elevation="5">
-          <!-- Header -->
           <div class="text-center mb-6">
             <h1 class="text-h4 font-weight-bold mb-2">Create Account</h1>
             <p class="text-body-2 text-medium-emphasis">
@@ -16,10 +15,7 @@
             </p>
           </div>
 
-          <!-- Form -->
-          <!-- <v-form ref="signupForm">
-            
-          </v-form> -->
+          <!-- Form Fields -->
           <v-text-field
             placeholder="Full Name"
             variant="outlined"
@@ -34,12 +30,13 @@
             placeholder="Enter your email"
             variant="outlined"
             prepend-inner-icon="mdi-email-outline"
-            class="mb-4 rounded-input"
+            class="rounded-input"
             density="compact"
             v-model="email"
             :rules="[rules.required, rules.emailFormat]"
           />
 
+     
           <v-text-field
             placeholder="Create password"
             type="password"
@@ -62,7 +59,6 @@
             :rules="[rules.required, rules.matchPassword]"
           />
 
-          <!-- Sign Up Button -->
           <v-btn
             block
             color="primary"
@@ -74,12 +70,10 @@
             Sign Up
           </v-btn>
 
-          <!-- Divider -->
           <div class="divider mb-6">
             <span>OR</span>
           </div>
 
-          <!-- Already have an account -->
           <p class="text-center text-body-2 mt-6">
             Already have an account?
             <v-btn
@@ -94,8 +88,13 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <v-snackbar v-model="snackbar.show" :color="snackbar.color" timeout="4000">
+      {{ snackbar.message }}
+    </v-snackbar>
   </v-container>
 </template>
+
 <script setup lang="ts">
 import { ref } from "vue";
 import { useAuth } from "~/composables/auth";
@@ -104,12 +103,16 @@ const fullName = ref("");
 const email = ref("");
 const password = ref("");
 const confirmPassword = ref("");
-const signupForm = ref(null);
 const router = useRouter();
 
 const { signUp, error } = useAuth();
 
-// ✅ Remove email format validation for now
+const snackbar = ref({
+  show: false,
+  message: "",
+  color: "success",
+});
+
 const rules = {
   required: (value: string) => !!value || "This field is required",
   password: (value: string) =>
@@ -122,14 +125,23 @@ const goToLogin = () => {
   router.push("/login");
 };
 
-// ✅ Simplified signup handler (NO email regex check)
+const showSnackbar = (message: string, color = "success") => {
+  snackbar.value = { show: true, message, color };
+};
+
 const handleSignup = async () => {
   try {
     await signUp(fullName.value, email.value, password.value);
-    console.log("Signup successful");
-    router.push("/login"); // Redirect to home or dashboard
+
+    showSnackbar(
+      "Account created successfully. Please verify your email before logging in.",
+      "success"
+    );
+
+    router.push("/login");
   } catch (err) {
     console.error("Signup error:", error.value);
+    showSnackbar(error.value || "Failed to create account", "error");
   }
 };
 </script>
