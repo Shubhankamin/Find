@@ -37,7 +37,7 @@
 
                   <!-- Location -->
                   <v-text-field
-                    placeholder="Where was it lost?"
+                    placeholder="Where was it found?"
                     v-model="location"
                     variant="outlined"
                     density="comfortable"
