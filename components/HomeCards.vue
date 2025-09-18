@@ -12,11 +12,14 @@
           class="d-flex justify-center"
         >
           <v-card
-            class="modern-card"
+            class="modern-card relative-card"
             elevation="3"
             max-width="350"
             min-width="300"
           >
+            <div v-if="item.status === 'claimed'" class="claimed-stamp">
+              CLAIMED
+            </div>
             <v-img
               :src="item.images?.[0]"
               height="200"
@@ -146,8 +149,9 @@ onMounted(() => {
 });
 
 const filteredItems = computed(() => {
-  let result = items.value;
-
+  let result = items.value.filter(
+    (item: any) => item.isEnabled === true || item.isEnabled === undefined
+  );
   if (
     props.selectedCategory &&
     props.selectedCategory.toLowerCase() !== "all"
@@ -168,5 +172,23 @@ const filteredItems = computed(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.relative-card {
+  position: relative;
+}
+
+.claimed-stamp {
+  position: absolute;
+  top: 20px;
+  right: -40px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  font-weight: bold;
+  padding: 5px 50px;
+  transform: rotate(45deg);
+  font-size: 14px;
+  text-transform: uppercase;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 </style>
