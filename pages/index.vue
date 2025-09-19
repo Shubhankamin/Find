@@ -16,7 +16,7 @@
           </div>
 
           <v-row class="justify-center align-center">
-            <v-col cols="6" md="2" sm="4" >
+            <v-col cols="6" md="2" sm="4">
               <v-img src="/images/logo-2.png"></v-img>
             </v-col>
           </v-row>
@@ -94,7 +94,6 @@ const loggingOut = () => {
 
 const openDialog = () => {
   if (!cookies.value) {
-    
     router.push("/login");
     return;
   } else {
@@ -108,8 +107,6 @@ const closeDialog = () => {
 const filterCategory = (category) => {
   selectedCategory.value = category;
 };
-
-
 </script>
 <style scoped>
 /* Hero Section Background */

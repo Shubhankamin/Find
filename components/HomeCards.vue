@@ -44,7 +44,7 @@
                   class="px-8 bg-green py-2 text-white rounded-lg mb-4"
                   @click="openDialog(item)"
                 >
-                  Claim
+                  Details
                 </button>
               </div>
             </v-card-actions>
@@ -56,33 +56,36 @@
         <v-card>
           <v-card-title class="d-flex justify-space-between align-center">
             <span class="text-h6">Claim Lost Item</span>
-            <v-btn icon @click="showDialog = false">
+            <v-btn icon @click="showDialog = false" class="bg-blue">
               <v-icon>mdi-close</v-icon>
             </v-btn>
           </v-card-title>
           <v-card-text>
             <v-row class="justify-center">
               <v-col cols="12" md="6">
-                <v-img
+                <!-- <v-img
                   v-if="selectedItem?.images"
                   :src="selectedItem.images[0]"
                   height="200"
                   class="mb-3 rounded-lg"
                   cover
-                ></v-img>
+                ></v-img> -->
+                <Swiper :images="dialogImages" />
               </v-col>
             </v-row>
 
-            <div class="pt-5">
-              <div>
-                <strong>Email:</strong> {{ selectedItem?.contactEmail }}
+            <div class="pt-5 d-flex flex-column gap-5">
+              <div class="d-flex ga-2 align-center">
+                <b>Email:</b> {{ selectedItem?.contactEmail }}
               </div>
-              <div><strong>Location:</strong> {{ selectedItem?.location }}</div>
-              <div>
-                <strong>Description:</strong> {{ selectedItem?.description }}
+              <div class="d-flex ga-2 align-center">
+                <b>Location:</b> {{ selectedItem?.location }}
               </div>
-              <div>
-                <strong>Posted On:</strong>
+              <div class="d-flex ga-2 align-center">
+                <b>Description:</b> {{ selectedItem?.description }}
+              </div>
+              <div class="d-flex ga-2 align-center">
+                <b>Posted On:</b>
                 {{ formatDate(selectedItem?.createdAt) }}
               </div>
             </div>
@@ -96,6 +99,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from "vue";
 import { useLostItems } from "~/composables/useLostItems";
+import Swiper from "./Swiper.vue";
 
 const props = defineProps({
   selectedCategory: {
@@ -103,6 +107,8 @@ const props = defineProps({
     default: "",
   },
 });
+
+const slideImages = ref();
 
 const showDialog = ref(false);
 const selectedItem = ref<any>(null);
@@ -121,12 +127,15 @@ const formatDate = (dateString: any) => {
   });
 };
 
+const dialogImages = ref<string[]>([]);
+
 const openDialog = (item: any) => {
   if (!cookies.value) {
     router.push("/login");
     return;
   }
   selectedItem.value = item;
+  dialogImages.value = item?.images || [];
   showDialog.value = true;
 };
 
@@ -139,6 +148,7 @@ const fetchItems = async () => {
     const data = await getLostItems();
     console.log("Fetched items:", data);
     items.value = data;
+    console.log("Slide Images:", slideImages.value);
   } catch (err) {
     console.error("Error fetching lost items:", err);
   }
