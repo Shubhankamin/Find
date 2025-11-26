@@ -232,6 +232,31 @@ const convertToBase64 = (file: File): Promise<string> => {
   });
 };
 
+const uploadToCloudinary = async (file: File) => {
+  const config = useRuntimeConfig().public;
+  const CLOUD_NAME = config.CLOUDINARY_CLOUD_NAME;
+  const UPLOAD_PRESET = config.CLOUDINARY_UPLOAD_PRESET;
+
+  const form = new FormData();
+  form.append("file", file);
+  form.append("upload_preset", UPLOAD_PRESET);
+
+  const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+
+  const res = await fetch(uploadUrl, {
+    method: "POST",
+    body: form,
+  });
+
+  const data = await res.json();
+
+  if (!data.secure_url) {
+    throw new Error("Cloudinary upload failed");
+  }
+
+  return data.secure_url; // This is the URL you will store in Firestore
+};
+
 const submitForm = async () => {
   if (
     !itemName.value ||
@@ -250,36 +275,45 @@ const submitForm = async () => {
   }
 
   try {
-    // Convert all selected images to Base64
-    const base64Images = await Promise.all(
-      selectedImages.map((img) => convertToBase64(img!))
+    // 1️⃣ Upload images to Cloudinary
+    const uploadedUrls = await Promise.all(
+      selectedImages.map((img) => uploadToCloudinary(img!))
     );
 
+    // 2️⃣ Save to Firestore
     await addLostItem({
       itemName: itemName.value,
       description: description.value,
       location: location.value,
       contactEmail: contactEmail.value,
       userName: UserName.value,
-      images: base64Images,
+      userId: cookies.value?.uid || "",  // Track who posted
+      images: uploadedUrls,
       category: selectedCategory.value,
+      
+      // 🔹 Moderation Fields
+      isEnabled: false,      // Pending admin approval
+      isDeleted: false,      // Not deleted
+      // status: "pending",     // pending | approved | rejected
+      
+      // 🔹 Timestamps
+      createdAt: new Date(),
+      // updatedAt: new Date(),
     });
 
-    showSnackbar("✅ Lost item posted successfully!", "success");
+    showSnackbar("Lost item posted successfully!", "success");
     emit("close");
     window.location.reload();
 
     // Reset form
     itemName.value = "";
-    userName.value = "";
     description.value = "";
     location.value = "";
-    contactEmail.value = "";
     images.value = [null, null, null, null];
     imagePreviews.value = [null, null, null, null];
   } catch (err) {
     console.error(err);
-    showSnackbar("❌ Something went wrong!", "error");
+    showSnackbar("Upload failed. Try again.", "error");
   }
 };
 </script>

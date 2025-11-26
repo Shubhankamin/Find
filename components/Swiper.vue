@@ -7,19 +7,20 @@
 
     <!-- Swiper Carousel -->
     <Swiper
-      :key="sliderImages.join(',')"
       :modules="[Navigation]"
-      :slides-per-view="1"
+      :slides-per-view="2"
       :loop="sliderImages.length > 1"
       :speed="600"
       :navigation="true"
       :pagination="{ clickable: true }"
+      :observer="true"
+      :observe-parents="true"
       class="mySwiper rounded-xl"
       @slideChange="onSlideChange"
       @reachBeginning="onReachBeginning"
       @reachEnd="onReachEnd"
       space-between="10"
-      :loop-fill-group-with-blank="true"
+      :loop-fill-group-with-blank="false"
     >
       <SwiperSlide
         v-for="(item, i) in sliderImages"
@@ -36,7 +37,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
-import { Navigation } from "swiper/modules";
+import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
@@ -69,7 +70,6 @@ const onSlideChange = (swiper: any) => {
   );
   console.log("Currently visible slide:", sliderImages.value[swiper.realIndex]);
 };
-
 
 const onReachBeginning = () => {
   console.log("Reached beginning of slides");

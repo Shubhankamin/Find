@@ -1,12 +1,12 @@
 <template>
-  <v-row class="ma-0  text-center bg-light-blue-lighten-4 overflow-hidden">
+  <v-row class="ma-0  text-center bg-light-blue-lighten-4 overflow-hidden pb-5">
     <v-col cols="12">
       <h2 class="text-h4 font-weight-bold mb-6">How It Works</h2>
     </v-col>
     <v-col cols="12" md="3" v-for="(step, index) in steps" :key="index">
       <v-icon size="48" class="mb-2">{{ step.icon }}</v-icon>
-      <h3 class="text-h6">{{ step.title }}</h3>
-      <p>{{ step.desc }}</p>
+      <h3 class="text-h6 manrope-Bold-h5">{{ step.title }}</h3>
+      <p class="manrope-Bold-h5">{{ step.desc }}</p>
     </v-col>
   </v-row>
 </template>
