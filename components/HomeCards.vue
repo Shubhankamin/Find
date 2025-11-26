@@ -20,6 +20,17 @@
             <div v-if="item.status === 'claimed'" class="claimed-stamp">
               CLAIMED
             </div>
+
+            <!-- 🔥 NEW: Expiring soon -->
+            <div
+              v-else-if="
+                getDaysLeft(item.expiryDate) > 0 &&
+                getDaysLeft(item.expiryDate) <= 14
+              "
+              class="expiring-badge"
+            >
+              EXPIRES IN {{ getDaysLeft(item.expiryDate) }} DAYS
+            </div>
             <div
               v-else-if="
                 item.expiryDate?.toDate() <= new Date() &&
@@ -259,6 +270,17 @@ const filteredItems = computed(() => {
 
   return result;
 });
+
+const getDaysLeft = (expiryDate: any) => {
+  if (!expiryDate) return null;
+
+  const expiry = expiryDate.seconds
+    ? new Date(expiryDate.seconds * 1000)
+    : new Date(expiryDate);
+
+  const now = new Date();
+  return Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+};
 </script>
 
 <style scoped>
@@ -275,7 +297,7 @@ const filteredItems = computed(() => {
   position: absolute;
   top: 20px;
   right: -40px;
-  background: rgba(255, 0, 0, 0.8);
+  background: #4caf50;
   color: white;
   font-weight: bold;
   padding: 5px 50px;
@@ -336,5 +358,23 @@ const filteredItems = computed(() => {
   line-height: 1.45;
   flex: 1;
   word-break: break-word;
+}
+
+.expiring-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  background: #ff9800;
+  color: white;
+  font-weight: 600;
+  padding: 6px 0;
+  font-size: 14px;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  text-transform: uppercase;
+  z-index: 999999;
+  opacity: 0.8;
 }
 </style>

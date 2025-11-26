@@ -188,7 +188,6 @@ const filterCategory = (category) => {
 /* Hero Section Background */
 .hero-section {
   background: linear-gradient(135deg, #4f46e5, #06b6d4);
-  
 }
 
 /* Auth Buttons */
@@ -210,7 +209,6 @@ const filterCategory = (category) => {
 }
 
 .login-btn:hover {
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
