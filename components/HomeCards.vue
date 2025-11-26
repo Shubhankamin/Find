@@ -20,6 +20,15 @@
             <div v-if="item.status === 'claimed'" class="claimed-stamp">
               CLAIMED
             </div>
+            <div
+              v-else-if="
+                item.expiryDate?.toDate() <= new Date() &&
+                item.status !== 'claimed'
+              "
+              class="expired-stamp"
+            >
+              EXPIRED
+            </div>
             <v-img
               :src="item.images?.[0]"
               height="200"
@@ -104,6 +113,16 @@
         </v-card>
       </v-dialog>
     </v-container>
+    <div v-if="loadingMore" class="d-flex justify-center py-6">
+      <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    </div>
+
+    <div
+      v-if="!loadingMore && !hasMore"
+      class="text-center py-4 text-grey-darken-1 manrope-Bold-h6"
+    >
+      No more items to load
+    </div>
   </div>
 </template>
 
@@ -165,24 +184,54 @@ const openDialog = (item: any) => {
   showDialog.value = true;
 };
 
-const { getLostItems } = useLostItems();
-
+const { getLostItemsPaginated } = useLostItems();
 const items = ref<any[]>([]);
+const lastDoc = ref<any>(null);
+const hasMore = ref(true);
+const pageSize = 8; // how many items per load
+const loadingMore = ref(false);
+
+// const items = ref<any[]>([]);
 
 const fetchItems = async () => {
+  if (!hasMore.value || loadingMore.value) return;
+
+  loadingMore.value = true;
   try {
-    const data = await getLostItems();
-    console.log("Fetched items:", data);
-    items.value = data;
-    console.log("Slide Images:", slideImages.value);
+    const {
+      items: newItems,
+      lastDoc: newLastDoc,
+      hasMore: more,
+    } = await getLostItemsPaginated(lastDoc.value, pageSize);
+
+    items.value.push(...newItems);
+    lastDoc.value = newLastDoc;
+    hasMore.value = more;
   } catch (err) {
-    console.error("Error fetching lost items:", err);
+    console.error("Pagination fetch error:", err);
+  } finally {
+    loadingMore.value = false;
   }
 };
 
 onMounted(() => {
   fetchItems();
 });
+
+onMounted(() => {
+  window.addEventListener("scroll", handleScroll);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("scroll", handleScroll);
+});
+
+const handleScroll = () => {
+  const bottomReached =
+    window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
+
+  if (bottomReached) fetchItems();
+};
 
 // ✅ Updated: Filter and sort by latest first
 const filteredItems = computed(() => {
@@ -236,6 +285,20 @@ const filteredItems = computed(() => {
   z-index: 10;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
+.expired-stamp {
+  position: absolute;
+  top: 10px;
+  right: -25px;
+  background: #e53935; /* red */
+  color: white;
+  font-weight: bold;
+  padding: 6px 20px;
+  transform: rotate(45deg);
+  font-size: 14px;
+  z-index: 5;
+  border-radius: 4px;
+}
+
 .details-container {
   margin-top: 22px;
   display: flex;

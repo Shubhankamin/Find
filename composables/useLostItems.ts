@@ -1,5 +1,13 @@
 import { ref } from "vue";
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  limit,
+  startAfter,
+} from "firebase/firestore";
 import { useNuxtApp } from "#app";
 
 export function useLostItems() {
@@ -7,23 +15,27 @@ export function useLostItems() {
   const error = ref<string | null>(null);
   const { $db } = useNuxtApp();
 
-  // ✅ Add new lost item
-  const addLostItem = async (itemData: {
-    itemName: string;
-    description: string;
-    location: string;
-    contactEmail: string;
-    image?: string | null; // Base64
-    category: string;
-  }) => {
+  // 🟢 Add new lost item
+  const addLostItem = async (itemData: any) => {
     loading.value = true;
     error.value = null;
 
     try {
-      const docRef = await addDoc(collection($db, "lost_item"), {
-        ...itemData,
+      const payload = {
+        name: itemData.itemName,
+        description: itemData.description,
+        location: itemData.location,
+        contactEmail: itemData.contactEmail,
+        userName: itemData.userName,
+        images: itemData.images || [],
+        category: itemData.category,
+        status: "active",
+        isEnabled: true,
         createdAt: new Date(),
-      });
+        updatedAt: new Date(),
+      };
+
+      const docRef = await addDoc(collection($db, "lost_item"), payload);
       return docRef.id;
     } catch (err: any) {
       error.value = err.message;
@@ -33,14 +45,39 @@ export function useLostItems() {
     }
   };
 
-  // ✅ Fetch all lost items
-  const getLostItems = async () => {
+  // 🔵 Get items (paginated)
+  const getLostItemsPaginated = async (lastDoc: any = null, pageSize = 10) => {
     loading.value = true;
     error.value = null;
 
     try {
-      const querySnapshot = await getDocs(collection($db, "lost_item"));
-      return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      let q = query(
+        collection($db, "lost_item"),
+        orderBy("createdAt", "desc"),
+        limit(pageSize)
+      );
+
+      if (lastDoc) {
+        q = query(
+          collection($db, "lost_item"),
+          orderBy("createdAt", "desc"),
+          startAfter(lastDoc),
+          limit(pageSize)
+        );
+      }
+
+      const snapshot = await getDocs(q);
+
+      const items = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      }));
+
+      return {
+        items,
+        lastDoc: snapshot.docs[snapshot.docs.length - 1] || null,
+        hasMore: snapshot.docs.length === pageSize,
+      };
     } catch (err: any) {
       error.value = err.message;
       throw err;
@@ -51,7 +88,7 @@ export function useLostItems() {
 
   return {
     addLostItem,
-    getLostItems,
+    getLostItemsPaginated,
     loading,
     error,
   };
