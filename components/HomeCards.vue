@@ -27,16 +27,18 @@
               class="rounded-lg"
             ></v-img>
 
-            <v-card-title>{{ item.name }}</v-card-title>
-            <v-card-subtitle>{{ item.location }}</v-card-subtitle>
+            <div class="px-4 py-4 d-flex flex-column ga-2">
+              <p class="manrope-Bold-h5">{{ item.name }}</p>
+              <p class="manrope-Bold-h5">{{ item.location }}</p>
 
-            <v-card-subtitle class="text-grey-darken-1 text-caption">
-              Posted on: {{ formatDate(item.createdAt) }}
-            </v-card-subtitle>
+              <p class="text-grey-darken-1 text-caption">
+                Posted on: {{ formatDate(item.createdAt) }}
+              </p>
 
-            <v-card-text class="truncate-text">
-              {{ item.description }}
-            </v-card-text>
+              <p class="truncate-text manrope-Bold-h5">
+                {{ item.description }}
+              </p>
+            </div>
 
             <v-card-actions>
               <div class="px-2">
@@ -44,7 +46,7 @@
                   class="px-8 bg-green py-2 text-white rounded-lg mb-4"
                   @click="openDialog(item)"
                 >
-                  Claim
+                  Details
                 </button>
               </div>
             </v-card-actions>
@@ -56,34 +58,46 @@
         <v-card>
           <v-card-title class="d-flex justify-space-between align-center">
             <span class="text-h6">Claim Lost Item</span>
-            <v-btn icon @click="showDialog = false">
+            <v-btn icon @click="showDialog = false" class="bg-blue">
               <v-icon>mdi-close</v-icon>
             </v-btn>
           </v-card-title>
           <v-card-text>
             <v-row class="justify-center">
               <v-col cols="12" md="6">
-                <v-img
+                <!-- <v-img
                   v-if="selectedItem?.images"
                   :src="selectedItem.images[0]"
                   height="200"
                   class="mb-3 rounded-lg"
                   cover
-                ></v-img>
+                ></v-img> -->
+                <!-- <Swiper :images="dialogImages" /> -->
+                <GridImage :images="dialogImages" />
               </v-col>
             </v-row>
 
-            <div class="pt-5">
-              <div>
-                <strong>Email:</strong> {{ selectedItem?.contactEmail }}
+            <div class="details-container">
+              <div class="detail-row">
+                <span class="label">Email:</span>
+                <span class="value">{{ selectedItem?.contactEmail }}</span>
               </div>
-              <div><strong>Location:</strong> {{ selectedItem?.location }}</div>
-              <div>
-                <strong>Description:</strong> {{ selectedItem?.description }}
+
+              <div class="detail-row">
+                <span class="label">Location:</span>
+                <span class="value">{{ selectedItem?.location }}</span>
               </div>
-              <div>
-                <strong>Posted On:</strong>
-                {{ formatDate(selectedItem?.createdAt) }}
+
+              <div class="detail-row">
+                <span class="label">Description:</span>
+                <span class="value">{{ selectedItem?.description }}</span>
+              </div>
+
+              <div class="detail-row">
+                <span class="label">Posted On:</span>
+                <span class="value">{{
+                  formatDate(selectedItem?.createdAt)
+                }}</span>
               </div>
             </div>
           </v-card-text>
@@ -96,6 +110,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from "vue";
 import { useLostItems } from "~/composables/useLostItems";
+import Swiper from "./Swiper.vue";
 
 const props = defineProps({
   selectedCategory: {
@@ -104,10 +119,27 @@ const props = defineProps({
   },
 });
 
+const slideImages = ref();
+
 const showDialog = ref(false);
 const selectedItem = ref<any>(null);
 const cookies = useCookie("login");
 const router = useRouter();
+
+// ✅ Helper function to convert various date formats to timestamp
+const getTimestamp = (dateValue: any): number => {
+  if (!dateValue) return 0;
+
+  // Firestore Timestamp object
+  if (dateValue.seconds !== undefined) {
+    return dateValue.seconds * 1000 + (dateValue.nanoseconds || 0) / 1000000;
+  }
+
+  // Regular Date object or ISO string
+  const date = new Date(dateValue);
+  return isNaN(date.getTime()) ? 0 : date.getTime();
+};
+
 const formatDate = (dateString: any) => {
   if (!dateString) return "N/A";
   const date =
@@ -121,12 +153,15 @@ const formatDate = (dateString: any) => {
   });
 };
 
+const dialogImages = ref<string[]>([]);
+
 const openDialog = (item: any) => {
   if (!cookies.value) {
     router.push("/login");
     return;
   }
   selectedItem.value = item;
+  dialogImages.value = item?.images || [];
   showDialog.value = true;
 };
 
@@ -139,6 +174,7 @@ const fetchItems = async () => {
     const data = await getLostItems();
     console.log("Fetched items:", data);
     items.value = data;
+    console.log("Slide Images:", slideImages.value);
   } catch (err) {
     console.error("Error fetching lost items:", err);
   }
@@ -148,10 +184,12 @@ onMounted(() => {
   fetchItems();
 });
 
+// ✅ Updated: Filter and sort by latest first
 const filteredItems = computed(() => {
-  let result = items.value.filter(
-    (item: any) => item.isEnabled === true || item.isEnabled === undefined
-  );
+  // First filter: Only items with isEnabled === true
+  let result = items.value.filter((item: any) => item.isEnabled === true);
+
+  // Second filter: Apply category filter if selected
   if (
     props.selectedCategory &&
     props.selectedCategory.toLowerCase() !== "all"
@@ -162,6 +200,13 @@ const filteredItems = computed(() => {
         item.category.toLowerCase() === props.selectedCategory.toLowerCase()
     );
   }
+
+  // ✅ Sort by latest first (updatedAt first, fallback to createdAt)
+  result.sort((a: any, b: any) => {
+    const dateA = getTimestamp(a.updatedAt) || getTimestamp(a.createdAt);
+    const dateB = getTimestamp(b.updatedAt) || getTimestamp(b.createdAt);
+    return dateB - dateA; // Descending order (newest first)
+  });
 
   return result;
 });
@@ -190,5 +235,43 @@ const filteredItems = computed(() => {
   text-transform: uppercase;
   z-index: 10;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.details-container {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 20px;
+  border: 2px solid rgba(20, 20, 20, 0.25);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+}
+
+.detail-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding-bottom: 8px;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.label {
+  font-weight: 600;
+  min-width: 105px;
+  color: #4a4a4a;
+}
+
+.value {
+  font-weight: 500;
+  color: #1a1a1a;
+  line-height: 1.45;
+  flex: 1;
+  word-break: break-word;
 }
 </style>

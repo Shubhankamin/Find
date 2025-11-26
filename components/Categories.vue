@@ -16,7 +16,7 @@
             @click="toggleCategory(cat.name)"
           >
             <v-icon size="36">{{ cat.icon }}</v-icon>
-            <p class="mt-2">{{ cat.name }}</p>
+            <p class="mt-2 manrope-Bold-h5">{{ cat.name }}</p>
           </v-card>
         </v-col>
       </v-row>
@@ -25,7 +25,7 @@
       <v-row v-if="selectedCategory" class="mt-4 justify-center">
         <v-chip
           color="primary"
-          class="ma-2"
+          class="ma-2 manrope-Bold-h5"
           closable
           @click:close="clearCategory"
         >
