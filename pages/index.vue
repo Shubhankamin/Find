@@ -79,6 +79,12 @@
       </v-app-bar>
 
       <!-- Hero Section -->
+      <div v-if="announcement" class="announcement-wrapper">
+        <div class="announcement-content">
+          {{ announcement }}
+        </div>
+      </div>
+
       <v-row
         class="hero-section text-center py-12 justify-center align-center overflow-hidden"
       >
@@ -129,7 +135,10 @@ const searchTerm = ref("");
 
 // Computed property for login state
 const isLoggedIn = computed(() => !!cookies.value);
+import { useClientAnnouncements } from "~/composables/useClientAnnouncements";
 
+const { announcements, getClientAnnouncements } = useClientAnnouncements();
+const announcement = ref("");
 // Computed property for user email (extract from cookie if available)
 const userEmail = computed(() => {
   if (cookies.value && typeof cookies.value === "object") {
@@ -172,6 +181,13 @@ const closeDialog = () => {
 const filterCategory = (category) => {
   selectedCategory.value = category;
 };
+
+onMounted(async () => {
+  await getClientAnnouncements();
+  announcement.value = announcements.value.length
+    ? announcements.value.join("   •   ")
+    : "";
+});
 </script>
 
 <style scoped>
@@ -188,7 +204,6 @@ const filterCategory = (category) => {
 /* Hero Section Background */
 .hero-section {
   background: linear-gradient(135deg, #4f46e5, #06b6d4);
-  
 }
 
 /* Auth Buttons */
@@ -210,7 +225,6 @@ const filterCategory = (category) => {
 }
 
 .login-btn:hover {
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -242,5 +256,48 @@ const filterCategory = (category) => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.announcement-wrapper {
+  background: linear-gradient(90deg, #e11d48, #f97316);
+  color: white;
+  font-weight: 600;
+  padding: 20px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.announcement-wrapper::before,
+.announcement-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 100vw;
+  height: 100%;
+  pointer-events: none;
+}
+
+.announcement-wrapper::before {
+  left: 0;
+  /* background: linear-gradient(to left, transparent, rgba(0, 0, 0, 0.4)); */
+}
+
+.announcement-wrapper::after {
+  right: 0;
+  /* background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.4)); */
+}
+
+.announcement-content {
+  white-space: nowrap;
+  animation: slideLeft 14s linear infinite;
+}
+
+@keyframes slideLeft {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(100%);
+  }
 }
 </style>
