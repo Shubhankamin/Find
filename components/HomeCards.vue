@@ -44,10 +44,10 @@
               :src="item.images?.[0]"
               height="200"
               cover
-              class="rounded-lg"
-            ></v-img>
+              class="rounded-lg blurred-img"
+            />
 
-            <div class="px-4 py-4 d-flex flex-column ga-2">
+            <!-- <div class="px-4 py-4 d-flex flex-column ga-2">
               <p class="manrope-Bold-h5">{{ item.name }}</p>
               <p class="manrope-Bold-h5">{{ item.location }}</p>
 
@@ -58,15 +58,28 @@
               <p class="truncate-text manrope-Bold-h5">
                 {{ item.description }}
               </p>
+            </div> -->
+            <div class="px-4 py-5 d-flex flex-column ga-2">
+              <p class="text-grey-darken-1 manrope-Bold-h6">
+                A lost item has been found.
+              </p>
+              <p class="text-caption text-blue">
+                Visit Security Office to claim
+              </p>
             </div>
-
             <v-card-actions>
               <div class="px-2">
-                <button
+                <!-- <button
                   class="px-8 bg-green py-2 text-white rounded-lg mb-4"
                   @click="openDialog(item)"
                 >
                   Details
+                </button> -->
+                <button
+                  class="px-8 bg-green py-2 text-white rounded-lg mb-4"
+                  @click="openDialog(item)"
+                >
+                  How to Claim
                 </button>
               </div>
             </v-card-actions>
@@ -98,7 +111,7 @@
             </v-row>
 
             <div class="details-container">
-              <div class="detail-row">
+              <!-- <div class="detail-row">
                 <span class="label">Email:</span>
                 <span class="value">{{ selectedItem?.contactEmail }}</span>
               </div>
@@ -118,7 +131,17 @@
                 <span class="value">{{
                   formatDate(selectedItem?.createdAt)
                 }}</span>
-              </div>
+              </div> -->
+
+              <h3 class="mb-3 manrope-Bold-h5">To claim this item</h3>
+              <p class="text-body-2">
+                Visit the Security Department and correctly describe a unique
+                feature of the item.
+              </p>
+              <!-- <p class="text-caption text-grey-darken-1 mt-2">
+                Example: mark, scratch, sticker, case color, initials, missing
+                part etc.
+              </p> -->
             </div>
           </v-card-text>
         </v-card>
@@ -376,5 +399,10 @@ const getDaysLeft = (expiryDate: any) => {
   text-transform: uppercase;
   z-index: 999999;
   opacity: 0.8;
+}
+.blurred-img {
+  filter: blur(14px);
+  transform: scale(1.05);
+  opacity: 0.9;
 }
 </style>

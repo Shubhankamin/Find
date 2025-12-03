@@ -3,7 +3,7 @@
     <div
       v-for="(img, i) in images"
       :key="i"
-      class="gallery-item"
+      class="gallery-item blurred-img"
       @click="$emit('select', img)"
     >
       <v-img :src="img" cover />
@@ -103,5 +103,9 @@ defineEmits(["select"]);
   .gallery:has(.gallery-item:nth-child(n + 3)) {
     grid-template-columns: 1fr 1fr;
   }
+}
+
+.blurred-img {
+  filter: blur(10px);
 }
 </style>
