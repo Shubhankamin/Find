@@ -146,7 +146,12 @@
                 <v-btn variant="text" color="grey" @click="$emit('close')">
                   Cancel
                 </v-btn>
-                <v-btn color="primary" class="text-black" @click="submitForm">
+                <v-btn
+                  color="primary"
+                  class="text-black"
+                  @click="submitForm"
+                  :loading="loader"
+                >
                   Submit
                 </v-btn>
               </v-card-actions>
@@ -173,7 +178,7 @@ import { useLostItems } from "@/composables/useLostItems";
 const props = defineProps<{ open: boolean }>();
 const emit = defineEmits<{ (e: "close"): void }>();
 const cookies = useCookie("login");
-
+const loader = ref(false);
 const snackbar = ref(false);
 const snackbarMessage = ref("");
 const snackbarColor = ref("success");
@@ -262,6 +267,7 @@ const uploadToCloudinary = async (file: File) => {
 };
 
 const submitForm = async () => {
+  loader.value = true;
   if (
     !itemName.value ||
     !description.value ||
@@ -298,7 +304,7 @@ const submitForm = async () => {
       // 🔹 Moderation Fields
       isEnabled: false, // Pending admin approval
       isDeleted: false, // Not deleted
-      // status: "pending",     // pending | approved | rejected
+      status: "pending", // pending | approved | rejected
 
       // 🔹 Timestamps
       createdAt: new Date(),
@@ -318,6 +324,9 @@ const submitForm = async () => {
   } catch (err) {
     console.error(err);
     showSnackbar("Upload failed. Try again.", "error");
+    loader.value = false;
+  } finally {
+    loader.value = false;
   }
 };
 </script>
