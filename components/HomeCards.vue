@@ -61,7 +61,7 @@
             </div> -->
             <div class="px-4 py-5 d-flex flex-column ga-2">
               <p class="text-grey-darken-1 manrope-Bold-h6">
-                A lost item has been found.
+                A lost {{ item.itemName }} has been found.
               </p>
               <p class="text-caption text-blue">
                 Visit Security Office to claim
@@ -241,6 +241,7 @@ const fetchItems = async () => {
     items.value.push(...newItems);
     lastDoc.value = newLastDoc;
     hasMore.value = more;
+    console.log("Fetched items:", items);
   } catch (err) {
     console.error("Pagination fetch error:", err);
   } finally {

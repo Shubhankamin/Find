@@ -15,62 +15,66 @@
 
               <v-card-text class="pa-4">
                 <v-form>
-                  <!-- Item Name -->
-                  <v-text-field
-                    v-model="itemName"
-                    placeholder="Item Name"
-                    variant="outlined"
-                    density="comfortable"
-                    required
-                  />
+                  <div class="d-flex flex-column ga-3">
+                    <!-- Item Name -->
+                    <v-text-field
+                      v-model="itemName"
+                      placeholder="Item Name"
+                      variant="outlined"
+                      density="comfortable"
+                      required
+                    />
 
-                  <!-- Description -->
-                  <v-textarea
-                    placeholder="Describe the item"
-                    v-model="description"
-                    variant="outlined"
-                    density="comfortable"
-                    rows="3"
-                    auto-grow
-                    required
-                  />
+                    <!-- Description -->
+                    <v-textarea
+                      placeholder="Describe the item"
+                      v-model="description"
+                      variant="outlined"
+                      density="comfortable"
+                      rows="3"
+                      auto-grow
+                      required
+                      hint="Mention details like brand, size, model, etc."
+                      persistent-hint
+                    />
 
-                  <!-- Location -->
-                  <v-text-field
-                    placeholder="Where was it found?"
-                    v-model="location"
-                    variant="outlined"
-                    density="comfortable"
-                    required
-                  />
-                  <!-- user-name -->
-                  <v-text-field
-                    v-model="UserName"
-                    placeholder="User Name"
-                    variant="outlined"
-                    density="comfortable"
-                    required
-                  />
+                    <!-- Location -->
+                    <v-text-field
+                      placeholder="Where was it found?"
+                      v-model="location"
+                      variant="outlined"
+                      density="comfortable"
+                      required
+                    />
+                    <!-- user-name -->
+                    <v-text-field
+                      v-model="UserName"
+                      placeholder="User Name"
+                      variant="outlined"
+                      density="comfortable"
+                      required
+                    />
 
-                  <!-- Email -->
-                  <v-text-field
-                    placeholder="Your contact email"
-                    v-model="contactEmail"
-                    type="email"
-                    variant="outlined"
-                    density="comfortable"
-                    required
-                    readonly
-                  />
+                    <!-- Email -->
+                    <v-text-field
+                      placeholder="Your contact email"
+                      v-model="contactEmail"
+                      type="email"
+                      variant="outlined"
+                      density="comfortable"
+                      required
+                      readonly
+                    />
 
-                  <!-- Category -->
-                  <v-select
-                    :items="categories"
-                    placeholder="Select Category"
-                    variant="outlined"
-                    dense
-                    v-model="selectedCategory"
-                  />
+                    <!-- Category -->
+                    <v-select
+                      :items="categories"
+                      placeholder="Select Category"
+                      variant="outlined"
+                      dense
+                      v-model="selectedCategory"
+                    />
+                  </div>
 
                   <!-- Multi-Image Upload Section -->
                   <div class="upload-section mt-4">
@@ -287,15 +291,15 @@ const submitForm = async () => {
       location: location.value,
       contactEmail: contactEmail.value,
       userName: UserName.value,
-      userId: cookies.value?.uid || "",  // Track who posted
+      userId: cookies.value?.uid || "", // Track who posted
       images: uploadedUrls,
       category: selectedCategory.value,
-      
+
       // 🔹 Moderation Fields
-      isEnabled: false,      // Pending admin approval
-      isDeleted: false,      // Not deleted
+      isEnabled: false, // Pending admin approval
+      isDeleted: false, // Not deleted
       // status: "pending",     // pending | approved | rejected
-      
+
       // 🔹 Timestamps
       createdAt: new Date(),
       // updatedAt: new Date(),
