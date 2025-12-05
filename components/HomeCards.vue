@@ -61,7 +61,7 @@
             </div> -->
             <div class="px-4 py-5 d-flex flex-column ga-2">
               <p class="text-grey-darken-1 manrope-Bold-h6">
-                A lost {{ item.itemName }} has been found.
+                A lost {{ item?.name ?? item.itemName }} has been found.
               </p>
               <p class="text-caption text-blue">
                 Visit Security Office to claim
