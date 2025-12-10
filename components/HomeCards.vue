@@ -5,17 +5,18 @@
         <v-col
           cols="12"
           sm="6"
-          md="3"
+          md="4"
           lg="3"
           v-for="(item, index) in filteredItems"
           :key="index"
           class="d-flex justify-center"
         >
           <v-card
-            class="modern-card relative-card"
+            class="relative-card"
             elevation="3"
-            max-width="350"
+            max-width="320"
             min-width="300"
+            v-if="item.isVerified === true && item.isEnabled === true"
           >
             <div v-if="item.status === 'claimed'" class="claimed-stamp">
               CLAIMED
@@ -60,7 +61,7 @@
               </p>
             </div> -->
             <div class="px-4 py-5 d-flex flex-column ga-2">
-              <p class="text-grey-darken-1 manrope-Bold-h6">
+              <p class="text-grey-darken-1 manrope-Bold-h6 truncate-text">
                 A lost {{ item?.name ?? item.itemName }} has been found.
               </p>
               <p class="text-caption text-blue">
