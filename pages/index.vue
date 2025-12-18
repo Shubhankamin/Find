@@ -120,6 +120,7 @@
       <HomeCards
         :selectedCategory="selectedCategory"
         :searchTerm="searchTerm"
+        
       />
       <HowItWorks />
     </v-container>

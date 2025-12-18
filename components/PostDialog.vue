@@ -305,10 +305,11 @@ const submitForm = async () => {
       isEnabled: false, // Pending admin approval
       isDeleted: false, // Not deleted
       status: "pending", // pending | approved | rejected
+      isVerified: false,
 
       // 🔹 Timestamps
       createdAt: new Date(),
-      // updatedAt: new Date(),
+      updatedAt: new Date(),
     });
 
     showSnackbar("Lost item posted successfully!", "success");
