@@ -163,7 +163,7 @@
     <v-snackbar
       v-model="snackbar"
       :color="snackbarColor"
-      timeout="3000"
+      timeout="5000"
       location="top"
     >
       {{ snackbarMessage }}
@@ -312,7 +312,7 @@ const submitForm = async () => {
       updatedAt: new Date(),
     });
 
-    showSnackbar("Lost item posted successfully!", "success");
+    showSnackbar("Lost item posted successfully! Please Handover the item to the Security Department for Post Confirmation.", "success");
     emit("close");
     window.location.reload();
 

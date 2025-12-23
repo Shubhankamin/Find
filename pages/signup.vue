@@ -7,7 +7,12 @@
     </v-row>
     <v-row class="justify-center">
       <v-col class="d-flex align-center justify-center" cols="12">
-        <v-card class="signup-card pa-10 d-none d-md-block" max-width="450" min-width="450" elevation="5">
+        <v-card
+          class="signup-card pa-10 d-none d-md-block"
+          max-width="450"
+          min-width="450"
+          elevation="5"
+        >
           <div class="text-center mb-6">
             <h1 class="text-h4 font-weight-bold mb-2">Create Account</h1>
             <p class="text-body-2 text-medium-emphasis">
@@ -36,7 +41,6 @@
             :rules="[rules.required, rules.emailFormat]"
           />
 
-     
           <v-text-field
             placeholder="Create password"
             type="password"
@@ -86,7 +90,11 @@
             </v-btn>
           </p>
         </v-card>
-         <v-card class="signup-card pa-10 d-block d-md-none" max-width="450" elevation="5">
+        <v-card
+          class="signup-card pa-10 d-block d-md-none"
+          max-width="450"
+          elevation="5"
+        >
           <div class="text-center mb-6">
             <h1 class="text-h4 font-weight-bold mb-2">Create Account</h1>
             <p class="text-body-2 text-medium-emphasis">
@@ -115,7 +123,6 @@
             :rules="[rules.required, rules.emailFormat]"
           />
 
-     
           <v-text-field
             placeholder="Create password"
             type="password"
@@ -212,12 +219,10 @@ const handleSignup = async () => {
   try {
     await signUp(fullName.value, email.value, password.value);
 
-    showSnackbar(
-      "Account created successfully. Please verify your email before logging in.",
-      "success"
-    );
-
-    router.push("/login");
+    router.push({
+      path: "/verifyEmail",
+      query: { email: email.value },
+    });
   } catch (err) {
     console.error("Signup error:", error.value);
     showSnackbar(error.value || "Failed to create account", "error");

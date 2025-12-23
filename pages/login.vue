@@ -136,6 +136,22 @@ const handleLogin = async () => {
       return;
     }
 
+    // 🚫 BLOCK unverified users
+    if (!user.emailVerified) {
+      snackbar.value = {
+        show: true,
+        message: "Please verify your email before logging in.",
+        color: "red",
+      };
+
+      await navigateTo({
+        path: "/verifyEmail",
+        query: { email: user.email },
+      });
+
+      return;
+    }
+
     const user = await login(email.value, password.value);
     console.log("Login successful:", user);
 
