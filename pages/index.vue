@@ -120,10 +120,18 @@
       <HomeCards
         :selectedCategory="selectedCategory"
         :searchTerm="searchTerm"
-        
       />
       <HowItWorks />
     </v-container>
+
+    <v-snackbar
+      v-model="snackbar.show"
+      :color="snackbar.color"
+      location="bottom"
+      timeout="3000"
+    >
+      {{ snackbar.message }}
+    </v-snackbar>
   </div>
 </template>
 
@@ -133,6 +141,12 @@ const cookies = useCookie("login");
 const router = useRouter();
 const selectedCategory = ref("");
 const searchTerm = ref("");
+
+const snackbar = ref({
+  show: false,
+  message: "",
+  color: "success",
+});
 
 // Computed property for login state
 const isLoggedIn = computed(() => !!cookies.value);
@@ -153,10 +167,18 @@ const updateSearch = (term) => {
   console.log("Search term updated:", searchTerm.value);
 };
 
-const loggingOut = () => {
+const loggingOut = async () => {
   cookies.value = null;
-  router.push("/");
-  console.log("Logged out successfully");
+
+  snackbar.value = {
+    show: true,
+    message: "Logged out successfully",
+    color: "green",
+  };
+
+  setTimeout(() => {
+    router.push("/");
+  }, 500);
 };
 
 const goToLogin = () => {
