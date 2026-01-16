@@ -136,7 +136,11 @@ const handleLogin = async () => {
       return;
     }
 
-    // 🚫 BLOCK unverified users
+    // 1️⃣ Login FIRST
+    const user = await login(email.value, password.value);
+    console.log("Login successful:", user);
+
+    // 2️⃣ THEN check verification
     if (!user.emailVerified) {
       snackbar.value = {
         show: true,
@@ -152,9 +156,7 @@ const handleLogin = async () => {
       return;
     }
 
-    const user = await login(email.value, password.value);
-    console.log("Login successful:", user);
-
+    // 3️⃣ Persist session
     cookies.value = JSON.stringify(user);
 
     snackbar.value = {
@@ -163,7 +165,7 @@ const handleLogin = async () => {
       color: "green",
     };
 
-    // ✅ Correct navigation for Nuxt 3
+    // 4️⃣ Navigate
     await navigateTo("/");
   } catch (err) {
     console.error("Login error:", err);
