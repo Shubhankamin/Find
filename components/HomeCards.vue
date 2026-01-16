@@ -16,7 +16,6 @@
             elevation="3"
             max-width="320"
             min-width="300"
-            v-if="item.isVerified === true && item.isEnabled === true"
           >
             <div v-if="item.status === 'claimed'" class="claimed-stamp">
               CLAIMED
@@ -271,10 +270,10 @@ const handleScroll = () => {
 
 // ✅ Updated: Filter and sort by latest first
 const filteredItems = computed(() => {
-  // First filter: Only items with isEnabled === true
-  let result = items.value.filter((item: any) => item.isEnabled === true);
+  let result = items.value.filter(
+    (item: any) => item.isVerified === true && item.isEnabled === true,
+  );
 
-  // Second filter: Apply category filter if selected
   if (
     props.selectedCategory &&
     props.selectedCategory.toLowerCase() !== "all"
@@ -282,15 +281,14 @@ const filteredItems = computed(() => {
     result = result.filter(
       (item: any) =>
         item.category &&
-        item.category.toLowerCase() === props.selectedCategory.toLowerCase()
+        item.category.toLowerCase() === props.selectedCategory.toLowerCase(),
     );
   }
 
-  // ✅ Sort by latest first (updatedAt first, fallback to createdAt)
   result.sort((a: any, b: any) => {
     const dateA = getTimestamp(a.updatedAt) || getTimestamp(a.createdAt);
     const dateB = getTimestamp(b.updatedAt) || getTimestamp(b.createdAt);
-    return dateB - dateA; // Descending order (newest first)
+    return dateB - dateA;
   });
 
   return result;
