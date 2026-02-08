@@ -7,7 +7,8 @@
     </v-row>
     <v-row class="justify-center">
       <v-col class="d-flex align-center justify-center" cols="12">
-        <v-card
+     <v-form ref="formRef">
+         <v-card
           class="signup-card pa-10 d-none d-md-block"
           max-width="450"
           min-width="450"
@@ -35,9 +36,10 @@
             placeholder="Enter your email"
             variant="outlined"
             prepend-inner-icon="mdi-email-outline"
-            class="rounded-input"
+            class="rounded-input mb-2"
             density="compact"
             v-model="email"
+            
             :rules="[rules.required, rules.emailFormat]"
           />
 
@@ -117,7 +119,7 @@
             placeholder="Enter your email"
             variant="outlined"
             prepend-inner-icon="mdi-email-outline"
-            class="rounded-input"
+            class="rounded-input mb-2"
             density="compact"
             v-model="email"
             :rules="[rules.required, rules.emailFormat]"
@@ -172,6 +174,10 @@
             </v-btn>
           </p>
         </v-card>
+
+
+
+     </v-form>
       </v-col>
     </v-row>
 
@@ -192,20 +198,30 @@ const confirmPassword = ref("");
 const router = useRouter();
 
 const { signUp, error } = useAuth();
-
+const formRef = ref();
 const snackbar = ref({
   show: false,
   message: "",
   color: "success",
 });
 
+const studentEmailRegex =
+  /^[a-zA-Z0-9._%+-]+\.mitmpl\d{4}@learner\.manipal\.edu$/;
+
 const rules = {
   required: (value: string) => !!value || "This field is required",
+
+  emailFormat: (value: string) =>
+    studentEmailRegex.test(value) ||
+    "Enter valid MIT student email (example: name.mitmpl2025@learner.manipal.edu)",
+
   password: (value: string) =>
     value.length >= 6 || "Password must be at least 6 characters",
+
   matchPassword: (value: string) =>
     value === password.value || "Passwords do not match",
 };
+
 
 const goToLogin = () => {
   router.push("/login");
@@ -216,6 +232,10 @@ const showSnackbar = (message: string, color = "success") => {
 };
 
 const handleSignup = async () => {
+  const { valid } = await formRef.value.validate();
+
+  if (!valid) return;
+
   try {
     await signUp(fullName.value, email.value, password.value);
 
@@ -228,6 +248,7 @@ const handleSignup = async () => {
     showSnackbar(error.value || "Failed to create account", "error");
   }
 };
+
 </script>
 
 <style scoped>
@@ -257,4 +278,5 @@ const handleSignup = async () => {
   background: #ddd;
   margin: 0 12px;
 }
+
 </style>
