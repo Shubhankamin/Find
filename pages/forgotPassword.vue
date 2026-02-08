@@ -1,76 +1,128 @@
 <template>
-  <div
-    class="d-flex flex-column align-center justify-center"
-    style="min-height: 100vh"
-  >
-    <v-card class="pa-6" width="400">
-      <h2 class="text-center mb-4">Forgot Password</h2>
+  <v-container fluid class="login-container">
+    <!-- Logo -->
+    <v-row class="justify-center align-center">
+      <v-col cols="8" sm="4" md="2">
+        <v-img src="/images/logo-2.png"></v-img>
+      </v-col>
+    </v-row>
 
-      <v-text-field
-        v-model="email"
-        placeholder="Enter your email"
-        type="email"
-        variant="outlined"
-        prepend-icon="mdi-email"
-      ></v-text-field>
-
-      <v-btn
-        class="mt-4"
-        color="primary"
-        block
-        :loading="loading"
-        @click="handleForgotPassword"
-      >
-        Send Reset Link
-      </v-btn>
-
-      <div v-if="auth.error" class="text-error mt-3 text-center">
-        {{ auth.error }}
-      </div>
-
-      <v-divider class="my-4"></v-divider>
-      <div class="text-center">
-        <NuxtLink to="/login" style="text-decoration: none" class="text-black"
-          >Back to Login</NuxtLink
+    <v-row class="justify-center">
+      <v-col class="d-flex align-center justify-center px-5" cols="12">
+        <v-card
+          class="login-card pa-6 pa-sm-8 pa-md-10"
+          :max-width="450"
+          elevation="10"
         >
-      </div>
-    </v-card>
+          <!-- Header -->
+          <div class="text-center mb-6">
+            <h1 class="text-h5 text-md-h4 font-weight-bold mb-2">
+              Forgot Password
+            </h1>
+            <p class="text-body-2 text-medium-emphasis">
+              Enter your MIT student email to receive a reset link
+            </p>
+          </div>
 
-    <!-- ✅ Snackbar for success -->
+          <!-- FORM -->
+          <v-form ref="formRef" v-model="isFormValid" validate-on="input">
+            <v-text-field
+              v-model="email"
+              placeholder="Enter your MIT email"
+              variant="outlined"
+              prepend-inner-icon="mdi-email-outline"
+              class="rounded-input"
+              density="compact"
+              :rules="[rules.required, rules.emailFormat]"
+            />
+
+            <v-btn
+              class="mt-4 rounded-pill text-white"
+              color="primary"
+              block
+              size="large"
+              :loading="loading"
+              :disabled="!isFormValid"
+              @click="handleForgotPassword"
+            >
+              Send Reset Link
+            </v-btn>
+          </v-form>
+
+          <v-divider class="my-6"></v-divider>
+
+          <div class="text-center">
+            <v-btn
+              variant="text"
+              class="text-primary"
+              @click="router.push('/login')"
+            >
+              Back to Login
+            </v-btn>
+          </div>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <!-- Success Snackbar -->
     <v-snackbar v-model="showSnackbar" color="green" timeout="3000">
       {{ snackbarMessage }}
     </v-snackbar>
-  </div>
+
+    <!-- Error Snackbar -->
+    <v-snackbar v-model="showError" color="red" timeout="3000">
+      {{ errorMessage }}
+    </v-snackbar>
+  </v-container>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import { useAuth } from "@/composables/auth";
 
+const auth = useAuth();
+const router= useRouter();
 const email = ref("");
 const loading = ref(false);
+
 const showSnackbar = ref(false);
 const snackbarMessage = ref("");
 
-const auth = useAuth();
+const showError = ref(false);
+const errorMessage = ref("");
+
+const formRef = ref(null);
+const isFormValid = ref(false);
+
+// SAME STUDENT EMAIL RULE
+const studentEmailRegex =
+  /^[a-zA-Z0-9._%+-]+\.mitmpl\d{4}@learner\.manipal\.edu$/;
+
+const rules = {
+  required: (v: string) => !!v || "Email is required",
+  emailFormat: (v: string) =>
+    studentEmailRegex.test(v) ||
+    "Enter valid MIT student email (name.mitmplYYYY@learner.manipal.edu)",
+};
 
 const handleForgotPassword = async () => {
-  if (!email.value) {
-    auth.error.value = "Please enter your email.";
-    return;
-  }
+  const { valid } = await formRef.value.validate();
+  if (!valid) return;
+
   loading.value = true;
 
   try {
-    const res = await auth.forgotPassword(email.value);
+    const res = await auth.forgotPassword(email.value.trim());
 
-    // ✅ If API call successful, show snackbar
-    if (res?.status === 200 || !auth.error.value) {
-      snackbarMessage.value = "Password reset link sent successfully!";
+    if (res) {
+      snackbarMessage.value = "Password reset link sent to your email";
       showSnackbar.value = true;
+      email.value = "";
     }
-  } catch (err) {
-    console.error(err);
+  } catch (err: any) {
+    errorMessage.value =
+      err?.message || "Unable to send reset link. Try again later.";
+    showError.value = true;
   } finally {
     loading.value = false;
   }

@@ -21,13 +21,14 @@
           </div>
 
           <!-- Form -->
-          <v-form>
+          <v-form ref="formRef" v-model="isFormValid" validate-on="input">
             <v-text-field
               placeholder="Enter your email"
               variant="outlined"
               prepend-inner-icon="mdi-email-outline"
               class="mb-4 rounded-input"
               v-model="email"
+              :rules="[rules.required, rules.emailFormat]"
             />
 
             <v-text-field
@@ -39,6 +40,7 @@
               @click:append-inner="showPassword = !showPassword"
               class="rounded-input"
               v-model="password"
+              :rules="[rules.required, rules.password]"
             />
 
             <!-- Remember & Forgot -->
@@ -65,6 +67,7 @@
               size="large"
               class="rounded-pill text-white mb-6"
               @click="handleLogin"
+              :disabled="!isFormValid"
             >
               Log In
             </v-btn>
@@ -109,6 +112,7 @@ const remember = ref(false);
 const router = useRouter();
 const cookies = useCookie("login");
 const showPassword = ref(false);
+const formRef = ref(null);
 
 const goToForgot = () => {
   router.push("/forgotPassword");
@@ -125,22 +129,26 @@ const snackbar = ref({
   color: "red",
 });
 
+const studentEmailRegex =
+  /^[a-zA-Z0-9._%+-]+\.mitmpl\d{4}@learner\.manipal\.edu$/;
+
+const rules = {
+  required: (value) => !!value || "This field is required",
+
+  emailFormat: (value) =>
+    studentEmailRegex.test(value) || "Use your MIT student email only",
+
+  password: (value) => value.length >= 6 || "Invalid password",
+};
+
 const handleLogin = async () => {
   try {
-    if (!email.value || !password.value) {
-      snackbar.value = {
-        show: true,
-        message: "Please fill in both fields",
-        color: "red",
-      };
-      return;
-    }
+    const { valid } = await formRef.value.validate();
+    if (!valid) return;
 
-    // 1️⃣ Login FIRST
-    const user = await login(email.value, password.value);
+    const user = await login(email.value.trim(), password.value);
     console.log("Login successful:", user);
 
-    // 2️⃣ THEN check verification
     if (!user.emailVerified) {
       snackbar.value = {
         show: true,
@@ -156,7 +164,6 @@ const handleLogin = async () => {
       return;
     }
 
-    // 3️⃣ Persist session
     cookies.value = JSON.stringify(user);
 
     snackbar.value = {
@@ -165,7 +172,6 @@ const handleLogin = async () => {
       color: "green",
     };
 
-    // 4️⃣ Navigate
     await navigateTo("/");
   } catch (err) {
     console.error("Login error:", err);
